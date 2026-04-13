@@ -13,7 +13,7 @@ const nextConfig: NextConfig = {
       },
     ],
   },
-  serverExternalPackages: ['bullmq'],
+  serverExternalPackages: ['bullmq', 'ioredis', 'pdf-parse', 'jsdom', '@mozilla/readability'],
 };
 
 export default withNextIntl(nextConfig);

@@ -39,6 +39,7 @@ export interface Database {
           timezone?: string;
           updated_at?: string;
         };
+        Relationships: [];
       };
       subscriptions: {
         Row: {
@@ -47,7 +48,7 @@ export interface Database {
           ls_subscription_id: string | null;
           ls_customer_id: string | null;
           plan_slug: 'free' | 'starter' | 'pro';
-          status: 'active' | 'cancelled' | 'expired' | 'past_due' | 'paused';
+          status: 'active' | 'cancelled' | 'expired' | 'past_due' | 'paused' | 'trialing';
           billing_cycle: 'monthly' | 'yearly' | null;
           current_period_start: string | null;
           current_period_end: string | null;
@@ -61,7 +62,7 @@ export interface Database {
           ls_subscription_id?: string | null;
           ls_customer_id?: string | null;
           plan_slug?: 'free' | 'starter' | 'pro';
-          status?: 'active' | 'cancelled' | 'expired' | 'past_due' | 'paused';
+          status?: 'active' | 'cancelled' | 'expired' | 'past_due' | 'paused' | 'trialing';
           billing_cycle?: 'monthly' | 'yearly' | null;
           current_period_start?: string | null;
           current_period_end?: string | null;
@@ -73,13 +74,22 @@ export interface Database {
           ls_subscription_id?: string | null;
           ls_customer_id?: string | null;
           plan_slug?: 'free' | 'starter' | 'pro';
-          status?: 'active' | 'cancelled' | 'expired' | 'past_due' | 'paused';
+          status?: 'active' | 'cancelled' | 'expired' | 'past_due' | 'paused' | 'trialing';
           billing_cycle?: 'monthly' | 'yearly' | null;
           current_period_start?: string | null;
           current_period_end?: string | null;
           cancel_at?: string | null;
           updated_at?: string;
         };
+        Relationships: [
+          {
+            foreignKeyName: 'subscriptions_user_id_fkey';
+            columns: ['user_id'];
+            isOneToOne: false;
+            referencedRelation: 'profiles';
+            referencedColumns: ['id'];
+          },
+        ];
       };
       conversions: {
         Row: {
@@ -123,6 +133,15 @@ export interface Database {
           processing_time?: number | null;
           updated_at?: string;
         };
+        Relationships: [
+          {
+            foreignKeyName: 'conversions_user_id_fkey';
+            columns: ['user_id'];
+            isOneToOne: false;
+            referencedRelation: 'profiles';
+            referencedColumns: ['id'];
+          },
+        ];
       };
       outputs: {
         Row: {
@@ -180,6 +199,22 @@ export interface Database {
           is_edited?: boolean;
           edited_content?: string | null;
         };
+        Relationships: [
+          {
+            foreignKeyName: 'outputs_conversion_id_fkey';
+            columns: ['conversion_id'];
+            isOneToOne: false;
+            referencedRelation: 'conversions';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'outputs_user_id_fkey';
+            columns: ['user_id'];
+            isOneToOne: false;
+            referencedRelation: 'profiles';
+            referencedColumns: ['id'];
+          },
+        ];
       };
       usage: {
         Row: {
@@ -196,7 +231,7 @@ export interface Database {
           id?: string;
           user_id: string;
           period_start: string;
-          period_end: string;
+          period_end?: string;
           conversions_used?: number;
           conversions_limit?: number;
           created_at?: string;
@@ -207,6 +242,15 @@ export interface Database {
           conversions_limit?: number;
           updated_at?: string;
         };
+        Relationships: [
+          {
+            foreignKeyName: 'usage_user_id_fkey';
+            columns: ['user_id'];
+            isOneToOne: false;
+            referencedRelation: 'profiles';
+            referencedColumns: ['id'];
+          },
+        ];
       };
       templates: {
         Row: {
@@ -246,11 +290,18 @@ export interface Database {
           is_premium?: boolean;
           sort_order?: number;
         };
+        Relationships: [];
       };
     };
     Views: Record<string, never>;
-    Functions: Record<string, never>;
+    Functions: {
+      increment_usage: {
+        Args: { p_user_id: string; p_period_start: string };
+        Returns: void;
+      };
+    };
     Enums: Record<string, never>;
+    CompositeTypes: Record<string, never>;
   };
 }
 
