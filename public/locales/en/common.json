@@ -90,14 +90,6 @@
     "priority": "Priority processing",
     "custom_prompts": "Custom prompts"
   },
-  "usage": {
-    "title": "Usage",
-    "used_of": "used of",
-    "remaining": "remaining",
-    "unlimited": "Unlimited",
-    "limit_reached": "You've reached your monthly limit",
-    "upgrade_prompt": "Upgrade your plan for more conversions."
-  },
   "auth": {
     "login_title": "Welcome Back",
     "login_subtitle": "Sign in to your account",
@@ -192,5 +184,52 @@
     "close": "Close",
     "or": "or",
     "minutes": "minutes"
+  },
+  "billing": {
+    "title": "Billing & Plan",
+    "subtitle": "Manage your subscription and usage",
+    "current_plan_label": "Current Plan",
+    "popular": "Popular",
+    "current_plan": "Current Plan",
+    "available_plans": "Compare Plans",
+    "monthly": "Monthly",
+    "yearly": "Yearly",
+    "save_20": "Save 20%",
+    "per_month": "/ mo",
+    "billed_yearly": "Billed yearly — ${total} total",
+    "upgrade_to": "Upgrade to {plan}",
+    "free_plan": "Free Plan",
+    "conversions_used": "Monthly conversions",
+    "usage_warning": "{percentage}% used — approaching your limit",
+    "renews_on": "Renews on {date}",
+    "cancels_on": "Cancels on {date} — access continues until then",
+    "manage_payment": "Update payment method",
+    "cancel_subscription": "Cancel Subscription",
+    "confirm_cancel": "Yes, Cancel",
+    "nevermind": "Never mind",
+    "cancel_success": "Subscription cancelled. You'll keep access until the end of the period.",
+    "cancel_error": "Failed to cancel subscription. Please try again.",
+    "checkout_error": "Could not open checkout. Please try again.",
+    "status_active": "Active",
+    "status_trialing": "Trialing",
+    "status_past_due": "Past Due",
+    "status_cancelled": "Cancelled",
+    "status_expired": "Expired",
+    "status_paused": "Paused",
+    "billing_monthly": "Monthly billing",
+    "billing_yearly": "Annual billing"
+  },
+  "usage": {
+    "title": "Usage",
+    "used_of": "used",
+    "remaining": "remaining",
+    "unlimited": "Unlimited",
+    "limit_reached": "You've reached your monthly limit",
+    "upgrade_prompt": "Upgrade your plan for more conversions.",
+    "limit_reached_title": "Monthly limit reached",
+    "limit_reached_desc": "{used}/{limit} conversions used. Upgrade to continue.",
+    "limit_warning_title": "Approaching your limit",
+    "limit_warning_desc": "{used}/{limit} conversions used ({percentage}%).",
+    "upgrade_cta": "Upgrade plan →"
   }
 }

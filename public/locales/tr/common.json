@@ -90,14 +90,6 @@
     "priority": "Öncelikli işleme",
     "custom_prompts": "Özel prompt"
   },
-  "usage": {
-    "title": "Kullanım",
-    "used_of": "kullanıldı",
-    "remaining": "kalan",
-    "unlimited": "Sınırsız",
-    "limit_reached": "Aylık limitinize ulaştınız",
-    "upgrade_prompt": "Daha fazla dönüşüm için planınızı yükseltin."
-  },
   "auth": {
     "login_title": "Tekrar Hoş Geldiniz",
     "login_subtitle": "Hesabınıza giriş yapın",
