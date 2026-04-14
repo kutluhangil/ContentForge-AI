@@ -1,0 +1,14 @@
+.git
+.github
+.next
+node_modules
+.env
+.env.local
+.env.development
+.env.production
+*.md
+!README.md
+.DS_Store
+*.log
+coverage
+.turbo

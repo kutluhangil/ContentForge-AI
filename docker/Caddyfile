@@ -1,0 +1,70 @@
+# ContentForge — Caddy reverse proxy
+# Replace contentforge.app with your actual domain
+
+contentforge.app {
+    # Automatic HTTPS via Let's Encrypt
+    tls {
+        protocols tls1.2 tls1.3
+    }
+
+    # Security headers
+    header {
+        Strict-Transport-Security "max-age=63072000; includeSubDomains; preload"
+        X-Content-Type-Options "nosniff"
+        X-Frame-Options "SAMEORIGIN"
+        Referrer-Policy "strict-origin-when-cross-origin"
+        Permissions-Policy "camera=(), microphone=(), geolocation=()"
+        -Server
+    }
+
+    # Static assets — long cache
+    @static {
+        path /_next/static/*
+        path /fonts/*
+        path /images/*
+        path /favicon.ico
+    }
+    header @static Cache-Control "public, max-age=31536000, immutable"
+
+    # Webhook — no buffering
+    @webhook {
+        path /api/webhooks/*
+    }
+    request_body @webhook {
+        max_size 1MB
+    }
+
+    # File uploads (audio/pdf)
+    @upload {
+        path /api/transcribe
+    }
+    request_body @upload {
+        max_size 30MB
+    }
+
+    # Proxy to Next.js
+    reverse_proxy app:3000 {
+        health_uri /api/health
+        health_interval 30s
+        health_timeout 10s
+
+        transport http {
+            dial_timeout 10s
+            response_header_timeout 60s
+        }
+    }
+
+    # Logging
+    log {
+        output file /var/log/caddy/contentforge.log {
+            roll_size 10MB
+            roll_keep 5
+        }
+        format json
+    }
+}
+
+# Redirect www → apex
+www.contentforge.app {
+    redir https://contentforge.app{uri} permanent
+}

@@ -1,0 +1,29 @@
+# ── BullMQ Worker ───────────────────────────────────────────────────────────
+FROM node:22-alpine AS deps
+WORKDIR /app
+
+RUN apk add --no-cache libc6-compat
+
+COPY package.json package-lock.json ./
+RUN npm ci --ignore-scripts
+
+# ── Runner ──────────────────────────────────────────────────────────────────
+FROM node:22-alpine AS runner
+WORKDIR /app
+
+ENV NODE_ENV=production
+
+RUN addgroup --system --gid 1001 nodejs && \
+    adduser  --system --uid 1001 worker
+
+COPY --from=deps --chown=worker:nodejs /app/node_modules ./node_modules
+COPY --chown=worker:nodejs package.json tsconfig.json ./
+COPY --chown=worker:nodejs src ./src
+COPY --chown=worker:nodejs workers ./workers
+
+USER worker
+
+HEALTHCHECK --interval=60s --timeout=10s --start-period=15s --retries=3 \
+  CMD pgrep -f "repurpose-worker" || exit 1
+
+CMD ["node_modules/.bin/tsx", "workers/repurpose-worker.ts"]
