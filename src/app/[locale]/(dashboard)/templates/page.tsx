@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import { LayoutTemplate, Lock, Zap } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { useTranslations } from 'next-intl';
 import { createClient } from '@/lib/supabase/client';
 import type { PlanSlug } from '@/types/plans';
 
@@ -22,7 +23,6 @@ const FORMAT_LABELS: Record<string, string> = {
   newsletter: 'Newsletter',
   shorts_script: 'Shorts',
   carousel: 'Carousel',
-  blog_summary: 'Blog Özeti',
 };
 
 interface Template {
@@ -42,6 +42,7 @@ export default function TemplatesPage() {
   const router = useRouter();
   const pathname = usePathname();
   const locale = pathname.split('/')[1] ?? 'tr';
+  const t = useTranslations('templates');
 
   const [templates, setTemplates] = useState<Template[]>([]);
   const [plan, setPlan] = useState<PlanSlug>('free');
@@ -79,10 +80,10 @@ export default function TemplatesPage() {
         </div>
         <div>
           <h1 className="text-xl font-bold text-[var(--text-primary)]" style={{ fontFamily: 'var(--font-display)' }}>
-            Şablonlar
+            {t('title')}
           </h1>
           <p className="text-sm text-[var(--text-tertiary)]">
-            Önceden hazırlanmış prompt şablonları ile hızlı başlayın.
+            {t('subtitle')}
           </p>
         </div>
       </div>
@@ -95,13 +96,13 @@ export default function TemplatesPage() {
         </div>
       ) : (
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          {templates.map((t, i) => {
-            const isLocked = t.is_premium && plan === 'free';
-            const color = FORMAT_COLORS[t.format] ?? 'var(--accent)';
+          {templates.map((tmpl, i) => {
+            const isLocked = tmpl.is_premium && plan === 'free';
+            const color = FORMAT_COLORS[tmpl.format] ?? 'var(--accent)';
 
             return (
               <motion.div
-                key={t.id}
+                key={tmpl.id}
                 initial={{ opacity: 0, y: 12 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.35, delay: i * 0.06 }}
@@ -110,9 +111,9 @@ export default function TemplatesPage() {
                     ? 'border-[var(--border-subtle)] opacity-60'
                     : 'border-[var(--border-subtle)] hover:border-[var(--border-hover)] cursor-pointer'
                 }`}
-                onClick={() => handleUseTemplate(t)}
+                onClick={() => handleUseTemplate(tmpl)}
               >
-                {t.is_premium && (
+                {tmpl.is_premium && (
                   <div className="absolute top-3 right-3">
                     {isLocked ? (
                       <Lock size={13} className="text-[var(--text-tertiary)]" />
@@ -127,25 +128,25 @@ export default function TemplatesPage() {
                   style={{ background: `${color}20` }}
                 >
                   <span className="text-sm font-bold" style={{ color }}>
-                    {FORMAT_LABELS[t.format]?.charAt(0) ?? 'T'}
+                    {FORMAT_LABELS[tmpl.format]?.charAt(0) ?? 'T'}
                   </span>
                 </div>
 
                 <h3 className="text-sm font-semibold text-[var(--text-primary)] mb-1">
-                  {locale === 'tr' ? t.name_tr : t.name_en}
+                  {locale === 'tr' ? tmpl.name_tr : tmpl.name_en}
                 </h3>
                 <p className="text-xs text-[var(--text-tertiary)] flex-1">
-                  {locale === 'tr' ? t.description_tr : t.description_en}
+                  {locale === 'tr' ? tmpl.description_tr : tmpl.description_en}
                 </p>
 
                 <div className="flex items-center justify-between mt-3 pt-3 border-t border-[var(--border-subtle)]">
                   <span className="text-[10px] font-medium px-1.5 py-0.5 rounded" style={{ color, background: `${color}18` }}>
-                    {FORMAT_LABELS[t.format]}
+                    {FORMAT_LABELS[tmpl.format] ?? t('blog_summary')}
                   </span>
                   {!isLocked && (
                     <button className="flex items-center gap-1 text-xs text-[var(--text-tertiary)] hover:text-[var(--text-primary)] transition-colors">
                       <Zap size={11} />
-                      Kullan
+                      {t('use')}
                     </button>
                   )}
                 </div>

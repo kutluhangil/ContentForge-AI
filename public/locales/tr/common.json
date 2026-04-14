@@ -126,12 +126,18 @@
   "history": {
     "title": "Dönüşüm Geçmişi",
     "subtitle": "Tüm geçmiş dönüşümleriniz",
+    "search_placeholder": "Dönüşüm ara...",
     "empty": "Henüz dönüşüm geçmişi yok",
+    "no_results": "Sonuç bulunamadı.",
+    "all_formats": "Tümü",
+    "blog_summary": "Blog Özeti",
     "source_type": "Kaynak Tipi",
     "formats": "Formatlar",
     "created_at": "Oluşturulma",
     "status": "Durum",
-    "view": "Görüntüle"
+    "view": "Görüntüle",
+    "conversion_fallback": "dönüşümü",
+    "items_label": "dönüşüm"
   },
   "status": {
     "pending": "Bekliyor",
@@ -218,6 +224,36 @@
     "status_paused": "Duraklatıldı",
     "billing_monthly": "Aylık faturalandırma",
     "billing_yearly": "Yıllık faturalandırma"
+  },
+  "settings": {
+    "title": "Ayarlar",
+    "subtitle": "Hesap bilgilerinizi yönetin.",
+    "section_profile": "Profil",
+    "section_password": "Şifre",
+    "full_name": "Ad Soyad",
+    "full_name_placeholder": "Adınız Soyadınız",
+    "email": "E-posta",
+    "email_hint": "E-posta değiştirmek için destek ekibiyle iletişime geçin.",
+    "ui_language": "Arayüz Dili",
+    "saving": "Kaydediliyor...",
+    "saved": "Kaydedildi!",
+    "save": "Kaydet",
+    "current_password": "Mevcut Şifre",
+    "new_password": "Yeni Şifre",
+    "new_password_placeholder": "En az 8 karakter",
+    "confirm_password": "Yeni Şifre Tekrar",
+    "confirm_password_placeholder": "Şifreyi tekrar girin",
+    "updating": "Güncelleniyor...",
+    "password_updated": "Şifre güncellendi!",
+    "update_password": "Şifreyi Güncelle",
+    "error_password_length": "Yeni şifre en az 8 karakter olmalıdır.",
+    "error_password_match": "Şifreler eşleşmiyor."
+  },
+  "templates": {
+    "title": "Şablonlar",
+    "subtitle": "Önceden hazırlanmış prompt şablonları ile hızlı başlayın.",
+    "use": "Kullan",
+    "blog_summary": "Blog Özeti"
   },
   "usage": {
     "title": "Kullanım",

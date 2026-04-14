@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { History, Search, ChevronDown, ChevronUp, CheckCircle2, XCircle, Loader2, Clock, Play, FileText, Link2, Mic, FileIcon } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useTranslations } from 'next-intl';
 import { createClient } from '@/lib/supabase/client';
 import { ResultCard } from '@/components/repurpose/ResultCard';
 import { Badge } from '@/components/ui/Badge';
@@ -13,15 +14,15 @@ const SOURCE_ICONS: Record<string, React.ElementType> = {
   blog_url: Link2, blog_text: FileText, youtube: Play, audio: Mic, pdf: FileIcon,
 };
 
-const FORMAT_OPTIONS = [
-  { key: '', label: 'Tümü' },
-  { key: 'linkedin', label: 'LinkedIn' },
-  { key: 'twitter_thread', label: 'Twitter' },
-  { key: 'newsletter', label: 'Newsletter' },
-  { key: 'shorts_script', label: 'Shorts' },
-  { key: 'carousel', label: 'Carousel' },
-  { key: 'blog_summary', label: 'Blog Özeti' },
-];
+const STATIC_FORMAT_LABELS: Record<string, string> = {
+  linkedin: 'LinkedIn',
+  twitter_thread: 'Twitter',
+  newsletter: 'Newsletter',
+  shorts_script: 'Shorts',
+  carousel: 'Carousel',
+};
+
+const FORMAT_KEYS = ['', 'linkedin', 'twitter_thread', 'newsletter', 'shorts_script', 'carousel', 'blog_summary'];
 
 interface Output {
   id: string;
@@ -45,6 +46,8 @@ interface Conversion {
 
 export default function HistoryPage() {
   const supabase = createClient();
+  const t = useTranslations('history');
+  const ts = useTranslations('status');
   const [conversions, setConversions] = useState<Conversion[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
@@ -98,9 +101,9 @@ export default function HistoryPage() {
         </div>
         <div>
           <h1 className="text-xl font-bold text-[var(--text-primary)]" style={{ fontFamily: 'var(--font-display)' }}>
-            Dönüşüm Geçmişi
+            {t('title')}
           </h1>
-          <p className="text-sm text-[var(--text-tertiary)]">{conversions.length} dönüşüm</p>
+          <p className="text-sm text-[var(--text-tertiary)]">{conversions.length} {t('items_label')}</p>
         </div>
       </div>
 
@@ -111,22 +114,22 @@ export default function HistoryPage() {
           <input
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            placeholder="Dönüşüm ara..."
+            placeholder={t('search_placeholder')}
             className="w-full pl-8 pr-3 py-2 bg-[var(--bg-secondary)] border border-[var(--border-subtle)] rounded-[var(--radius-md)] text-sm text-[var(--text-primary)] placeholder:text-[var(--text-tertiary)] focus:outline-none focus:border-[var(--border-hover)]"
           />
         </div>
         <div className="flex gap-1.5 flex-wrap">
-          {FORMAT_OPTIONS.map((f) => (
+          {FORMAT_KEYS.map((key) => (
             <button
-              key={f.key}
-              onClick={() => setFormatFilter(f.key)}
+              key={key}
+              onClick={() => setFormatFilter(key)}
               className={`px-3 py-1.5 rounded-[var(--radius-md)] text-xs font-medium transition-all ${
-                formatFilter === f.key
+                formatFilter === key
                   ? 'bg-[var(--text-primary)] text-[var(--text-inverse)]'
                   : 'bg-[var(--bg-secondary)] border border-[var(--border-subtle)] text-[var(--text-secondary)] hover:border-[var(--border-hover)]'
               }`}
             >
-              {f.label}
+              {key === '' ? t('all_formats') : (STATIC_FORMAT_LABELS[key] ?? t('blog_summary'))}
             </button>
           ))}
         </div>
@@ -139,7 +142,7 @@ export default function HistoryPage() {
         </div>
       ) : filtered.length === 0 ? (
         <div className="text-center py-16 text-[var(--text-tertiary)] text-sm">
-          {search || formatFilter ? 'Sonuç bulunamadı.' : 'Henüz dönüşüm yok.'}
+          {search || formatFilter ? t('no_results') : t('empty')}
         </div>
       ) : (
         <div className="space-y-2">
@@ -165,10 +168,10 @@ export default function HistoryPage() {
 
                   <div className="flex-1 min-w-0">
                     <p className="text-sm font-medium text-[var(--text-primary)] truncate">
-                      {c.title ?? `${c.source_type.replace('_', ' ')} dönüşümü`}
+                      {c.title ?? `${c.source_type.replace('_', ' ')} ${t('conversion_fallback')}`}
                     </p>
                     <p className="text-xs text-[var(--text-tertiary)] mt-0.5">
-                      {formatRelativeTime(c.created_at)} · {c.outputs.length} format
+                      {formatRelativeTime(c.created_at)} · {c.outputs.length} {t('formats').toLowerCase()}
                       {c.processing_time && ` · ${c.processing_time}s`}
                     </p>
                   </div>
@@ -178,7 +181,7 @@ export default function HistoryPage() {
                       {c.status === 'completed' && <CheckCircle2 size={11} />}
                       {c.status === 'failed' && <XCircle size={11} />}
                       {(c.status === 'pending' || c.status === 'processing') && <Loader2 size={11} className="animate-spin" />}
-                      {c.status === 'completed' ? 'Tamamlandı' : c.status === 'failed' ? 'Başarısız' : 'İşleniyor'}
+                      {c.status === 'completed' ? ts('completed') : c.status === 'failed' ? ts('failed') : ts('processing')}
                     </Badge>
                     {isExpanded ? <ChevronUp size={14} className="text-[var(--text-tertiary)]" /> : <ChevronDown size={14} className="text-[var(--text-tertiary)]" />}
                   </div>

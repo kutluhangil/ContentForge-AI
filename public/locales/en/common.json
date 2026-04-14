@@ -126,12 +126,18 @@
   "history": {
     "title": "Conversion History",
     "subtitle": "All your past conversions",
+    "search_placeholder": "Search conversions...",
     "empty": "No conversion history yet",
+    "no_results": "No results found.",
+    "all_formats": "All",
+    "blog_summary": "Blog Summary",
     "source_type": "Source Type",
     "formats": "Formats",
     "created_at": "Created",
     "status": "Status",
-    "view": "View"
+    "view": "View",
+    "conversion_fallback": "conversion",
+    "items_label": "conversions"
   },
   "status": {
     "pending": "Pending",
@@ -218,6 +224,36 @@
     "status_paused": "Paused",
     "billing_monthly": "Monthly billing",
     "billing_yearly": "Annual billing"
+  },
+  "settings": {
+    "title": "Settings",
+    "subtitle": "Manage your account information.",
+    "section_profile": "Profile",
+    "section_password": "Password",
+    "full_name": "Full Name",
+    "full_name_placeholder": "Your Full Name",
+    "email": "Email",
+    "email_hint": "Contact support to change your email address.",
+    "ui_language": "Interface Language",
+    "saving": "Saving...",
+    "saved": "Saved!",
+    "save": "Save",
+    "current_password": "Current Password",
+    "new_password": "New Password",
+    "new_password_placeholder": "At least 8 characters",
+    "confirm_password": "Confirm New Password",
+    "confirm_password_placeholder": "Re-enter your password",
+    "updating": "Updating...",
+    "password_updated": "Password updated!",
+    "update_password": "Update Password",
+    "error_password_length": "New password must be at least 8 characters.",
+    "error_password_match": "Passwords do not match."
+  },
+  "templates": {
+    "title": "Templates",
+    "subtitle": "Start quickly with pre-built prompt templates.",
+    "use": "Use",
+    "blog_summary": "Blog Summary"
   },
   "usage": {
     "title": "Usage",

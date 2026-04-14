@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { User, Lock, Globe, Loader2, Check } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { useTranslations } from 'next-intl';
 import { createClient } from '@/lib/supabase/client';
 import { Input } from '@/components/ui/Input';
 import { Button } from '@/components/ui/Button';
@@ -17,6 +18,7 @@ type Section = 'profile' | 'password';
 
 export default function SettingsPage() {
   const supabase = createClient();
+  const t = useTranslations('settings');
 
   const [profile, setProfile] = useState<Profile | null>(null);
   const [section, setSection] = useState<Section>('profile');
@@ -72,11 +74,11 @@ export default function SettingsPage() {
     setPasswordError('');
 
     if (newPassword.length < 8) {
-      setPasswordError('Yeni şifre en az 8 karakter olmalıdır.');
+      setPasswordError(t('error_password_length'));
       return;
     }
     if (newPassword !== confirmPassword) {
-      setPasswordError('Şifreler eşleşmiyor.');
+      setPasswordError(t('error_password_match'));
       return;
     }
 
@@ -96,8 +98,8 @@ export default function SettingsPage() {
   }
 
   const navItems: { key: Section; label: string; icon: React.ElementType }[] = [
-    { key: 'profile', label: 'Profil', icon: User },
-    { key: 'password', label: 'Şifre', icon: Lock },
+    { key: 'profile', label: t('section_profile'), icon: User },
+    { key: 'password', label: t('section_password'), icon: Lock },
   ];
 
   return (
@@ -109,9 +111,9 @@ export default function SettingsPage() {
         </div>
         <div>
           <h1 className="text-xl font-bold text-[var(--text-primary)]" style={{ fontFamily: 'var(--font-display)' }}>
-            Ayarlar
+            {t('title')}
           </h1>
-          <p className="text-sm text-[var(--text-tertiary)]">Hesap bilgilerinizi yönetin.</p>
+          <p className="text-sm text-[var(--text-tertiary)]">{t('subtitle')}</p>
         </div>
       </div>
 
@@ -151,22 +153,22 @@ export default function SettingsPage() {
               <>
                 <div className="p-5 bg-[var(--bg-secondary)] border border-[var(--border-subtle)] rounded-[var(--radius-xl)] space-y-4">
                   <Input
-                    label="Ad Soyad"
+                    label={t('full_name')}
                     value={fullName}
                     onChange={(e) => setFullName(e.target.value)}
-                    placeholder="Adınız Soyadınız"
+                    placeholder={t('full_name_placeholder')}
                   />
                   <Input
-                    label="E-posta"
+                    label={t('email')}
                     value={profile?.email ?? ''}
                     disabled
-                    hint="E-posta değiştirmek için destek ekibiyle iletişime geçin."
+                    hint={t('email_hint')}
                   />
 
                   <div>
                     <label className="block text-xs font-medium text-[var(--text-secondary)] mb-2">
                       <Globe size={12} className="inline mr-1" />
-                      Arayüz Dili
+                      {t('ui_language')}
                     </label>
                     <div className="flex gap-2">
                       {(['tr', 'en'] as const).map((l) => (
@@ -193,11 +195,11 @@ export default function SettingsPage() {
                   className="w-full"
                 >
                   {savingProfile ? (
-                    <><Loader2 size={14} className="animate-spin" /> Kaydediliyor...</>
+                    <><Loader2 size={14} className="animate-spin" /> {t('saving')}</>
                   ) : profileSaved ? (
-                    <><Check size={14} /> Kaydedildi!</>
+                    <><Check size={14} /> {t('saved')}</>
                   ) : (
-                    'Kaydet'
+                    t('save')
                   )}
                 </Button>
               </>
@@ -207,25 +209,25 @@ export default function SettingsPage() {
               <>
                 <div className="p-5 bg-[var(--bg-secondary)] border border-[var(--border-subtle)] rounded-[var(--radius-xl)] space-y-4">
                   <Input
-                    label="Mevcut Şifre"
+                    label={t('current_password')}
                     type="password"
                     value={currentPassword}
                     onChange={(e) => setCurrentPassword(e.target.value)}
                     placeholder="••••••••"
                   />
                   <Input
-                    label="Yeni Şifre"
+                    label={t('new_password')}
                     type="password"
                     value={newPassword}
                     onChange={(e) => setNewPassword(e.target.value)}
-                    placeholder="En az 8 karakter"
+                    placeholder={t('new_password_placeholder')}
                   />
                   <Input
-                    label="Yeni Şifre Tekrar"
+                    label={t('confirm_password')}
                     type="password"
                     value={confirmPassword}
                     onChange={(e) => setConfirmPassword(e.target.value)}
-                    placeholder="Şifreyi tekrar girin"
+                    placeholder={t('confirm_password_placeholder')}
                     error={passwordError}
                   />
                 </div>
@@ -237,11 +239,11 @@ export default function SettingsPage() {
                   className="w-full"
                 >
                   {savingPassword ? (
-                    <><Loader2 size={14} className="animate-spin" /> Güncelleniyor...</>
+                    <><Loader2 size={14} className="animate-spin" /> {t('updating')}</>
                   ) : passwordSaved ? (
-                    <><Check size={14} /> Şifre güncellendi!</>
+                    <><Check size={14} /> {t('password_updated')}</>
                   ) : (
-                    'Şifreyi Güncelle'
+                    t('update_password')
                   )}
                 </Button>
               </>
