@@ -24,22 +24,21 @@ interface NavItem {
 export function Sidebar() {
   const locale = useLocale();
   const pathname = usePathname();
-  const td = useTranslations('dashboard');
-  const th = useTranslations('history');
   const tn = useTranslations('nav');
+  const td = useTranslations('dashboard');
 
   const navItems: NavItem[] = [
     {
       key: 'dashboard',
       href: `/${locale}/dashboard`,
       icon: <LayoutDashboard size={18} />,
-      labelKey: 'panel',
+      labelKey: 'dashboard',
     },
     {
       key: 'repurpose',
       href: `/${locale}/repurpose`,
       icon: <Repeat2 size={18} />,
-      labelKey: 'newConversion',
+      labelKey: 'repurpose',
     },
     {
       key: 'history',
@@ -70,15 +69,6 @@ export function Sidebar() {
     },
   ];
 
-  const labels: Record<string, string> = {
-    panel: 'Panel',
-    newConversion: 'Yeni Dönüşüm',
-    history: 'Geçmiş',
-    templates: 'Şablonlar',
-    settings: 'Ayarlar',
-    billing: 'Fatura',
-  };
-
   function NavLink({ item }: { item: NavItem }) {
     const isActive = pathname.startsWith(item.href);
     return (
@@ -93,7 +83,7 @@ export function Sidebar() {
         )}
       >
         {item.icon}
-        {labels[item.labelKey]}
+        {tn(item.labelKey as Parameters<typeof tn>[0])}
       </Link>
     );
   }
@@ -116,7 +106,7 @@ export function Sidebar() {
         <Link href={`/${locale}/repurpose`}>
           <button className="w-full flex items-center justify-center gap-2 bg-[var(--text-primary)] text-[var(--text-inverse)] text-sm font-semibold px-4 py-2 rounded-[var(--radius-md)] hover:bg-[var(--accent-hover)] transition-colors">
             <Zap size={15} />
-            Yeni Dönüşüm
+            {td('new_conversion')}
           </button>
         </Link>
       </div>

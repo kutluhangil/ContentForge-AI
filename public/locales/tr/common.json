@@ -4,7 +4,12 @@
     "pricing": "Fiyatlandırma",
     "login": "Giriş Yap",
     "signup": "Ücretsiz Başla",
-    "dashboard": "Panel"
+    "dashboard": "Panel",
+    "repurpose": "Dönüştür",
+    "history": "Geçmiş",
+    "templates": "Şablonlar",
+    "settings": "Ayarlar",
+    "billing": "Fatura"
   },
   "hero": {
     "title_line1": "Bir İçerik.",

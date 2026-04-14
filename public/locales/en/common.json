@@ -4,7 +4,12 @@
     "pricing": "Pricing",
     "login": "Log In",
     "signup": "Start Free",
-    "dashboard": "Dashboard"
+    "dashboard": "Dashboard",
+    "repurpose": "Convert",
+    "history": "History",
+    "templates": "Templates",
+    "settings": "Settings",
+    "billing": "Billing"
   },
   "hero": {
     "title_line1": "One Content.",
