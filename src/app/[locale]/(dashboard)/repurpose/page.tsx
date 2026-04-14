@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { Zap, Loader2, AlertCircle } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useTranslations } from 'next-intl';
 import { createClient } from '@/lib/supabase/client';
 import { useRepurposeStore } from '@/stores/repurpose-store';
 import { SourceSelector } from '@/components/repurpose/SourceSelector';
@@ -34,6 +35,7 @@ type PageState = 'idle' | 'transcribing' | 'submitting' | 'polling' | 'done' | '
 export default function RepurposePage() {
   const supabase = createClient();
   const store = useRepurposeStore();
+  const tr = useTranslations('repurpose');
 
   const [pageState, setPageState] = useState<PageState>('idle');
   const [conversionId, setConversionId] = useState<string | null>(null);
@@ -97,15 +99,15 @@ export default function RepurposePage() {
 
     // Basic validation
     if (sourceType === 'blog_url' || sourceType === 'youtube') {
-      if (!sourceUrl.trim()) { setErrorMsg('Lütfen bir URL girin.'); setPageState('error'); return; }
+      if (!sourceUrl.trim()) { setErrorMsg(tr('error_url_required')); setPageState('error'); return; }
     } else if (sourceType === 'blog_text') {
-      if (!sourceText.trim()) { setErrorMsg('Lütfen metin girin.'); setPageState('error'); return; }
+      if (!sourceText.trim()) { setErrorMsg(tr('error_text_required')); setPageState('error'); return; }
     } else if ((sourceType === 'audio' || sourceType === 'pdf') && !sourceText.trim()) {
-      setErrorMsg('Önce dosyayı yükleyip transkript oluşturun.'); setPageState('error'); return;
+      setErrorMsg(tr('error_file_required')); setPageState('error'); return;
     }
 
     if (selectedFormats.length === 0) {
-      setErrorMsg('En az bir format seçin.'); setPageState('error'); return;
+      setErrorMsg(tr('error_format_required')); setPageState('error'); return;
     }
 
     setPageState('submitting');
@@ -190,10 +192,10 @@ export default function RepurposePage() {
           >
             <div className="flex items-center justify-between mb-2">
               <h2 className="text-base font-semibold text-[var(--text-primary)]">
-                Sonuçlar — {result.outputs.length} format
+                {tr('results_header')} — {result.outputs.length} {tr('formats_label').toLowerCase()}
               </h2>
               <button onClick={handleReset} className="text-xs text-[var(--text-tertiary)] hover:text-[var(--text-primary)] transition-colors">
-                ← Yeni dönüşüm
+                {tr('new_conversion_link')}
               </button>
             </div>
             {result.outputs.map((o) => (
@@ -215,7 +217,7 @@ export default function RepurposePage() {
             <div className="space-y-6">
               {/* Source */}
               <div className="p-5 bg-[var(--bg-secondary)] border border-[var(--border-subtle)] rounded-[var(--radius-xl)]">
-                <h2 className="text-sm font-semibold text-[var(--text-primary)] mb-4">Kaynak İçerik</h2>
+                <h2 className="text-sm font-semibold text-[var(--text-primary)] mb-4">{tr('source_label')}</h2>
                 <SourceSelector
                   transcribing={pageState === 'transcribing'}
                   setTranscribing={(v) => setPageState(v ? 'transcribing' : 'idle')}
@@ -235,13 +237,13 @@ export default function RepurposePage() {
                 {plan === 'pro' && (
                   <div className="mt-4">
                     <label className="block text-xs font-medium text-[var(--text-secondary)] mb-1.5">
-                      Özel Prompt (opsiyonel)
+                      {tr('custom_prompt_label')}
                     </label>
                     <textarea
                       rows={3}
                       value={store.customPrompt}
                       onChange={(e) => store.setCustomPrompt(e.target.value)}
-                      placeholder="Ek yönergeler ekleyin... (Pro plan)"
+                      placeholder={tr('custom_prompt_placeholder')}
                       className="w-full px-3 py-2.5 bg-[var(--bg-tertiary)] border border-[var(--border-subtle)] rounded-[var(--radius-md)] text-sm text-[var(--text-primary)] placeholder:text-[var(--text-tertiary)] focus:outline-none focus:border-[var(--border-hover)] resize-none"
                       maxLength={500}
                     />
@@ -261,9 +263,9 @@ export default function RepurposePage() {
               {isProcessing && (
                 <div className="flex items-center gap-3 px-4 py-3 bg-[var(--bg-secondary)] border border-[var(--border-subtle)] rounded-[var(--radius-lg)] text-sm text-[var(--text-secondary)]">
                   <Loader2 size={15} className="animate-spin text-[var(--text-tertiary)]" />
-                  {pageState === 'transcribing' && 'Ses transkript ediliyor...'}
-                  {pageState === 'submitting' && 'Görev gönderiliyor...'}
-                  {pageState === 'polling' && 'GPT-4o ile dönüşüm yapılıyor...'}
+                  {pageState === 'transcribing' && tr('status_transcribing')}
+                  {pageState === 'submitting' && tr('status_submitting')}
+                  {pageState === 'polling' && tr('status_converting')}
                 </div>
               )}
 

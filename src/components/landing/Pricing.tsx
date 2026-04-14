@@ -7,21 +7,21 @@ import { motion } from 'framer-motion';
 import { Check, Minus } from 'lucide-react';
 import { Toggle } from '../ui/Toggle';
 
-const plans = [
+const planDefs = [
   {
     key: 'free',
     nameKey: 'free_name',
     price: { monthly: 0, yearly: 0 },
     highlighted: false,
-    features: [
-      { label: '3 dönüşüm/ay', included: true },
-      { label: '3 format (LinkedIn, Twitter, Özet)', included: true },
-      { label: 'YouTube (5 dk video)', included: true },
-      { label: 'Ses yükleme', included: false },
-      { label: '7 gün geçmiş', included: true },
-      { label: 'Temel şablonlar', included: true },
-      { label: 'Öncelikli işleme', included: false },
-      { label: 'API erişimi', included: false },
+    featureKeys: [
+      { key: 'f_free_1', included: true },
+      { key: 'f_free_2', included: true },
+      { key: 'f_free_3', included: true },
+      { key: 'f_free_4', included: false },
+      { key: 'f_free_5', included: true },
+      { key: 'f_free_6', included: true },
+      { key: 'f_free_7', included: false },
+      { key: 'f_free_8', included: false },
     ],
   },
   {
@@ -29,15 +29,15 @@ const plans = [
     nameKey: 'starter_name',
     price: { monthly: 19, yearly: 15.2 },
     highlighted: true,
-    features: [
-      { label: '50 dönüşüm/ay', included: true },
-      { label: '6 format (Tümü)', included: true },
-      { label: 'YouTube (30 dk video)', included: true },
-      { label: 'Ses yükleme (10 dk)', included: true },
-      { label: '90 gün geçmiş', included: true },
-      { label: 'Tüm şablonlar', included: true },
-      { label: 'Öncelikli işleme', included: false },
-      { label: 'API erişimi', included: false },
+    featureKeys: [
+      { key: 'f_starter_1', included: true },
+      { key: 'f_starter_2', included: true },
+      { key: 'f_starter_3', included: true },
+      { key: 'f_starter_4', included: true },
+      { key: 'f_starter_5', included: true },
+      { key: 'f_starter_6', included: true },
+      { key: 'f_free_7', included: false },
+      { key: 'f_free_8', included: false },
     ],
   },
   {
@@ -45,15 +45,15 @@ const plans = [
     nameKey: 'pro_name',
     price: { monthly: 49, yearly: 39.2 },
     highlighted: false,
-    features: [
-      { label: 'Sınırsız dönüşüm', included: true },
-      { label: '6 format (Tümü)', included: true },
-      { label: 'YouTube (120 dk video)', included: true },
-      { label: 'Ses yükleme (60 dk)', included: true },
-      { label: 'Sınırsız geçmiş', included: true },
-      { label: 'Tümü + Özel oluştur', included: true },
-      { label: 'Öncelikli işleme', included: true },
-      { label: 'API erişimi', included: true },
+    featureKeys: [
+      { key: 'f_pro_1', included: true },
+      { key: 'f_starter_2', included: true },
+      { key: 'f_pro_3', included: true },
+      { key: 'f_pro_4', included: true },
+      { key: 'f_pro_5', included: true },
+      { key: 'f_pro_6', included: true },
+      { key: 'f_free_7', included: true },
+      { key: 'f_free_8', included: true },
     ],
   },
 ];
@@ -95,7 +95,7 @@ export function Pricing() {
         </motion.div>
 
         <div className="grid md:grid-cols-3 gap-4">
-          {plans.map((plan, i) => (
+          {planDefs.map((plan, i) => (
             <motion.div
               key={plan.key}
               initial={{ opacity: 0, y: 24 }}
@@ -118,7 +118,7 @@ export function Pricing() {
 
               <div className="mb-6">
                 <h3 className="text-sm font-semibold text-[var(--text-secondary)] mb-2">
-                  {t(plan.nameKey)}
+                  {t(plan.nameKey as Parameters<typeof t>[0])}
                 </h3>
                 <div className="flex items-end gap-1">
                   <span
@@ -131,28 +131,28 @@ export function Pricing() {
                 </div>
                 {yearly && plan.price.monthly > 0 && (
                   <p className="text-xs text-[var(--success)] mt-1">
-                    Yıllık faturalama, aylık ${plan.price.monthly} yerine
+                    {t('yearly_billing_note', { monthly: plan.price.monthly })}
                   </p>
                 )}
               </div>
 
               <ul className="flex flex-col gap-2.5 flex-1 mb-6">
-                {plan.features.map((f) => (
-                  <li key={f.label} className="flex items-center gap-2.5 text-sm">
+                {plan.featureKeys.map((f) => (
+                  <li key={f.key} className="flex items-center gap-2.5 text-sm">
                     {f.included ? (
                       <Check size={15} className="text-[var(--success)] shrink-0" />
                     ) : (
                       <Minus size={15} className="text-[var(--text-tertiary)] shrink-0" />
                     )}
                     <span className={f.included ? 'text-[var(--text-secondary)]' : 'text-[var(--text-tertiary)]'}>
-                      {f.label}
+                      {t(f.key as Parameters<typeof t>[0])}
                     </span>
                   </li>
                 ))}
               </ul>
 
               <Link
-                href={plan.key === 'free' ? `/${locale}/register` : `/${locale}/register`}
+                href={`/${locale}/register`}
                 className={`w-full flex items-center justify-center py-2.5 rounded-[var(--radius-md)] text-sm font-semibold transition-all duration-[var(--duration-fast)] ${
                   plan.highlighted
                     ? 'bg-[var(--text-primary)] text-[var(--text-inverse)] hover:bg-[var(--accent-hover)]'

@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/Button';
 import type { PlanSlug } from '@/types/plans';
 
 interface Feature {
-  label: string;
+  key: string;
   included: boolean;
 }
 
@@ -33,6 +33,7 @@ export function PlanCard({
   onUpgrade,
 }: PlanCardProps) {
   const t = useTranslations('billing');
+  const tp = useTranslations('pricing');
   const [loading, setLoading] = useState(false);
 
   const displayPrice = billing === 'yearly' ? price.yearly : price.monthly;
@@ -91,14 +92,14 @@ export function PlanCard({
 
       <ul className="flex flex-col gap-2.5 flex-1 mb-6">
         {features.map((f) => (
-          <li key={f.label} className="flex items-center gap-2.5 text-sm">
+          <li key={f.key} className="flex items-center gap-2.5 text-sm">
             {f.included ? (
               <Check size={15} className="text-[var(--success)] shrink-0" />
             ) : (
               <Minus size={15} className="text-[var(--text-tertiary)] shrink-0" />
             )}
             <span className={f.included ? 'text-[var(--text-secondary)]' : 'text-[var(--text-tertiary)]'}>
-              {f.label}
+              {tp(f.key as Parameters<typeof tp>[0])}
             </span>
           </li>
         ))}

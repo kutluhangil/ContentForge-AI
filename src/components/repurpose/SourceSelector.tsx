@@ -2,17 +2,10 @@
 
 import { useRef } from 'react';
 import { Link2, FileText, Play, Mic, FileIcon } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 import { useRepurposeStore } from '@/stores/repurpose-store';
 import { Input } from '@/components/ui/Input';
 import type { SourceType } from '@/types/repurpose';
-
-const sources: { type: SourceType; label: string; icon: React.ElementType; placeholder?: string }[] = [
-  { type: 'blog_url', label: 'Blog URL', icon: Link2, placeholder: 'https://example.com/blog-post' },
-  { type: 'blog_text', label: 'Blog Metin', icon: FileText },
-  { type: 'youtube', label: 'YouTube', icon: Play, placeholder: 'https://youtube.com/watch?v=...' },
-  { type: 'audio', label: 'Ses Dosyası', icon: Mic },
-  { type: 'pdf', label: 'PDF', icon: FileIcon },
-];
 
 interface SourceSelectorProps {
   onFileTranscribed?: (text: string) => void;
@@ -20,9 +13,28 @@ interface SourceSelectorProps {
   setTranscribing?: (v: boolean) => void;
 }
 
+const SOURCE_ICONS: Record<SourceType, React.ElementType> = {
+  blog_url: Link2,
+  blog_text: FileText,
+  youtube: Play,
+  audio: Mic,
+  pdf: FileIcon,
+};
+
 export function SourceSelector({ onFileTranscribed, transcribing, setTranscribing }: SourceSelectorProps) {
   const { sourceType, sourceUrl, sourceText, setSourceType, setSourceUrl, setSourceText, setSourceFile } = useRepurposeStore();
   const fileRef = useRef<HTMLInputElement>(null);
+  const t = useTranslations('repurpose');
+
+  const sourceTypes: SourceType[] = ['blog_url', 'blog_text', 'youtube', 'audio', 'pdf'];
+
+  const sourceLabelKeys: Record<SourceType, string> = {
+    blog_url: 'source_blog_url',
+    blog_text: 'source_blog_text',
+    youtube: 'source_youtube',
+    audio: 'source_audio',
+    pdf: 'source_pdf',
+  };
 
   async function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
@@ -46,27 +58,27 @@ export function SourceSelector({ onFileTranscribed, transcribing, setTranscribin
     }
   }
 
-  const current = sources.find((s) => s.type === sourceType);
+  const Icon = SOURCE_ICONS[sourceType];
 
   return (
     <div className="space-y-4">
       {/* Source type tabs */}
       <div className="flex gap-1.5 flex-wrap">
-        {sources.map((s) => {
-          const Icon = s.icon;
-          const active = sourceType === s.type;
+        {sourceTypes.map((st) => {
+          const TabIcon = SOURCE_ICONS[st];
+          const active = sourceType === st;
           return (
             <button
-              key={s.type}
-              onClick={() => setSourceType(s.type)}
+              key={st}
+              onClick={() => setSourceType(st)}
               className={`flex items-center gap-1.5 px-3 py-1.5 rounded-[var(--radius-md)] text-xs font-medium transition-all duration-[var(--duration-fast)] ${
                 active
                   ? 'bg-[var(--text-primary)] text-[var(--text-inverse)]'
                   : 'bg-[var(--bg-secondary)] border border-[var(--border-subtle)] text-[var(--text-secondary)] hover:border-[var(--border-hover)] hover:text-[var(--text-primary)]'
               }`}
             >
-              <Icon size={13} />
-              {s.label}
+              <TabIcon size={13} />
+              {t(sourceLabelKeys[st] as Parameters<typeof t>[0])}
             </button>
           );
         })}
@@ -75,34 +87,34 @@ export function SourceSelector({ onFileTranscribed, transcribing, setTranscribin
       {/* Input area */}
       {(sourceType === 'blog_url' || sourceType === 'youtube') && (
         <Input
-          label={current?.label}
-          placeholder={current?.placeholder}
+          label={t(sourceLabelKeys[sourceType] as Parameters<typeof t>[0])}
+          placeholder={sourceType === 'blog_url' ? 'https://example.com/blog-post' : 'https://youtube.com/watch?v=...'}
           value={sourceUrl}
           onChange={(e) => setSourceUrl(e.target.value)}
-          leftIcon={current?.icon && <current.icon size={15} />}
+          leftIcon={<Icon size={15} />}
         />
       )}
 
       {sourceType === 'blog_text' && (
         <div>
           <label className="block text-xs font-medium text-[var(--text-secondary)] mb-1.5">
-            Blog İçeriği
+            {t('source_blog_text')}
           </label>
           <textarea
             rows={8}
             value={sourceText}
             onChange={(e) => setSourceText(e.target.value)}
-            placeholder="Blog yazınızın içeriğini buraya yapıştırın..."
+            placeholder={t('source_label')}
             className="w-full px-3 py-2.5 bg-[var(--bg-secondary)] border border-[var(--border-subtle)] rounded-[var(--radius-md)] text-sm text-[var(--text-primary)] placeholder:text-[var(--text-tertiary)] focus:outline-none focus:border-[var(--border-hover)] resize-none transition-colors"
           />
-          <p className="text-xs text-[var(--text-tertiary)] mt-1">{sourceText.split(/\s+/).filter(Boolean).length} kelime</p>
+          <p className="text-xs text-[var(--text-tertiary)] mt-1">{sourceText.split(/\s+/).filter(Boolean).length} {t('word_count')}</p>
         </div>
       )}
 
       {(sourceType === 'audio' || sourceType === 'pdf') && (
         <div>
           <label className="block text-xs font-medium text-[var(--text-secondary)] mb-1.5">
-            {sourceType === 'audio' ? 'Ses Dosyası (MP3, M4A, WAV, max 25MB)' : 'PDF Dosyası (max 10MB)'}
+            {sourceType === 'audio' ? t('audio_label') : t('pdf_label')}
           </label>
           <div
             className="flex flex-col items-center justify-center gap-3 px-6 py-10 bg-[var(--bg-secondary)] border border-dashed border-[var(--border-subtle)] rounded-[var(--radius-lg)] cursor-pointer hover:border-[var(--border-hover)] transition-colors"
@@ -110,7 +122,7 @@ export function SourceSelector({ onFileTranscribed, transcribing, setTranscribin
           >
             {sourceType === 'audio' ? <Mic size={24} className="text-[var(--text-tertiary)]" /> : <FileIcon size={24} className="text-[var(--text-tertiary)]" />}
             <p className="text-sm text-[var(--text-secondary)]">
-              {transcribing ? 'Transkript oluşturuluyor...' : 'Dosya seç veya sürükle'}
+              {transcribing ? t('generating') : t('file_select')}
             </p>
           </div>
           <input
@@ -122,7 +134,7 @@ export function SourceSelector({ onFileTranscribed, transcribing, setTranscribin
           />
           {sourceText && (
             <p className="text-xs text-[var(--success)] mt-2">
-              ✓ Transkript hazır — {sourceText.split(/\s+/).filter(Boolean).length} kelime
+              ✓ {t('transcript_ready')} — {sourceText.split(/\s+/).filter(Boolean).length} {t('word_count')}
             </p>
           )}
         </div>

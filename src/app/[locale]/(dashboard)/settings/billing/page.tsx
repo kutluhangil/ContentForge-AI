@@ -25,35 +25,36 @@ interface UsageData {
   conversions_limit: number;
 }
 
-const planFeatures: Record<PlanSlug, { label: string; included: boolean }[]> = {
+const planFeatureKeys: Record<PlanSlug, { key: string; included: boolean }[]> = {
   free: [
-    { label: '3 dönüşüm/ay', included: true },
-    { label: 'LinkedIn, Twitter, Özet', included: true },
-    { label: 'YouTube (5 dk)', included: true },
-    { label: 'Ses yükleme', included: false },
-    { label: '7 gün geçmiş', included: true },
-    { label: 'API erişimi', included: false },
+    { key: 'f_free_1', included: true },
+    { key: 'f_free_2', included: true },
+    { key: 'f_free_3', included: true },
+    { key: 'f_free_4', included: false },
+    { key: 'f_free_5', included: true },
+    { key: 'f_free_8', included: false },
   ],
   starter: [
-    { label: '50 dönüşüm/ay', included: true },
-    { label: 'Tüm formatlar (6)', included: true },
-    { label: 'YouTube (30 dk)', included: true },
-    { label: 'Ses yükleme (10 dk)', included: true },
-    { label: '90 gün geçmiş', included: true },
-    { label: 'API erişimi', included: false },
+    { key: 'f_starter_1', included: true },
+    { key: 'f_starter_2', included: true },
+    { key: 'f_starter_3', included: true },
+    { key: 'f_starter_4', included: true },
+    { key: 'f_starter_5', included: true },
+    { key: 'f_free_8', included: false },
   ],
   pro: [
-    { label: 'Sınırsız dönüşüm', included: true },
-    { label: 'Tüm formatlar (6)', included: true },
-    { label: 'YouTube (120 dk)', included: true },
-    { label: 'Ses yükleme (60 dk)', included: true },
-    { label: 'Sınırsız geçmiş', included: true },
-    { label: 'API erişimi + Öncelikli', included: true },
+    { key: 'f_pro_1', included: true },
+    { key: 'f_starter_2', included: true },
+    { key: 'f_pro_3', included: true },
+    { key: 'f_pro_4', included: true },
+    { key: 'f_pro_5', included: true },
+    { key: 'f_free_8', included: true },
   ],
 };
 
 export default function BillingPage() {
   const t = useTranslations('billing');
+  const tp = useTranslations('pricing');
   const supabase = createClient();
 
   const [yearlyBilling, setYearlyBilling] = useState(false);
@@ -217,9 +218,9 @@ export default function BillingPage() {
                     <PlanCard
                       key={slug}
                       planSlug={slug}
-                      name={PLANS[slug].name.tr}
+                      name={tp(`${slug}_name` as Parameters<typeof tp>[0])}
                       price={PLANS[slug].price}
-                      features={planFeatures[slug]}
+                      features={planFeatureKeys[slug]}
                       isCurrentPlan={slug === currentPlan}
                       isFeatured={slug === 'starter'}
                       billing={yearlyBilling ? 'yearly' : 'monthly'}
