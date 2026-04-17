@@ -84,7 +84,10 @@
     "file_select": "Dosya seç veya sürükle",
     "audio_label": "Ses Dosyası (MP3, M4A, WAV, max 25MB)",
     "pdf_label": "PDF Dosyası (max 10MB)",
-    "transcript_ready": "Transkript hazır"
+    "transcript_ready": "Transkript hazır",
+    "untitled": "Başlıksız Dönüşüm",
+    "status_completed": "Tamamlandı",
+    "status_failed": "Başarısız"
   },
   "pricing": {
     "title": "Basit ve Şeffaf Fiyatlandırma",
@@ -264,7 +267,9 @@
     "status_expired": "Süresi Doldu",
     "status_paused": "Duraklatıldı",
     "billing_monthly": "Aylık faturalandırma",
-    "billing_yearly": "Yıllık faturalandırma"
+    "billing_yearly": "Yıllık faturalandırma",
+    "processing": "İşleniyor...",
+    "upgrade_cta": "Planı Yükselt"
   },
   "settings": {
     "title": "Ayarlar",
@@ -288,7 +293,18 @@
     "password_updated": "Şifre güncellendi!",
     "update_password": "Şifreyi Güncelle",
     "error_password_length": "Yeni şifre en az 8 karakter olmalıdır.",
-    "error_password_match": "Şifreler eşleşmiyor."
+    "error_password_match": "Şifreler eşleşmiyor.",
+    "api_keys_title": "API Anahtarları",
+    "api_keys_desc": "ContentForge API'sine programatik erişim için anahtar yönetimi.",
+    "api_keys_pro_only": "Pro Plan Gerekli",
+    "api_keys_pro_only_desc": "API erişimi sadece Pro plan aboneleri için kullanılabilir.",
+    "api_keys_your_key": "API Anahtarınız",
+    "api_keys_none": "Henüz bir API anahtarı oluşturulmadı.",
+    "api_keys_generate": "Anahtar Oluştur",
+    "api_keys_regenerate": "Yeniden Oluştur",
+    "api_keys_generating": "Oluşturuluyor...",
+    "api_keys_note_1": "API anahtarınızı güvenli bir yerde saklayın. Yeniden gösterilemez.",
+    "api_keys_note_2": "Anahtarınızı yeniden oluşturursanız eski anahtar geçersiz olur."
   },
   "templates": {
     "title": "Şablonlar",
@@ -308,5 +324,24 @@
     "limit_warning_title": "Limite yaklaşıyorsunuz",
     "limit_warning_desc": "{used}/{limit} dönüşüm kullanıldı (%{percentage}).",
     "upgrade_cta": "Planı yükselt →"
+  },
+  "testimonials": {
+    "title": "İçerik Üreticileri Ne Diyor?",
+    "subtitle": "Binlerce içerik üreticisi ContentForge ile zamandan tasarruf ediyor.",
+    "t1": {
+      "quote": "Bir blog yazısını 6 farklı platforma dönüştürmek eskiden saatlerimi alıyordu. Artık 30 saniye.",
+      "name": "Ayşe Kaya",
+      "role": "İçerik Pazarlama Uzmanı"
+    },
+    "t2": {
+      "quote": "YouTube videolarımın transkriptini alıp LinkedIn postlarına çevirmek inanılmaz kolaylaştı.",
+      "name": "Mehmet Demir",
+      "role": "Dijital Girişimci"
+    },
+    "t3": {
+      "quote": "Newsletter hazırlamak artık 5 dakikamı alıyor. Ton ayarları tam istediğim gibi çalışıyor.",
+      "name": "Elif Yılmaz",
+      "role": "Freelance Yazar"
+    }
   }
 }

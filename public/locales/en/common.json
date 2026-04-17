@@ -84,7 +84,10 @@
     "file_select": "Select or drag a file",
     "audio_label": "Audio File (MP3, M4A, WAV, max 25MB)",
     "pdf_label": "PDF File (max 10MB)",
-    "transcript_ready": "Transcript ready"
+    "transcript_ready": "Transcript ready",
+    "untitled": "Untitled Conversion",
+    "status_completed": "Completed",
+    "status_failed": "Failed"
   },
   "pricing": {
     "title": "Simple, Transparent Pricing",
@@ -264,7 +267,9 @@
     "status_expired": "Expired",
     "status_paused": "Paused",
     "billing_monthly": "Monthly billing",
-    "billing_yearly": "Annual billing"
+    "billing_yearly": "Annual billing",
+    "processing": "Processing...",
+    "upgrade_cta": "Upgrade Plan"
   },
   "settings": {
     "title": "Settings",
@@ -288,7 +293,18 @@
     "password_updated": "Password updated!",
     "update_password": "Update Password",
     "error_password_length": "New password must be at least 8 characters.",
-    "error_password_match": "Passwords do not match."
+    "error_password_match": "Passwords do not match.",
+    "api_keys_title": "API Keys",
+    "api_keys_desc": "Manage keys for programmatic access to the ContentForge API.",
+    "api_keys_pro_only": "Pro Plan Required",
+    "api_keys_pro_only_desc": "API access is only available for Pro plan subscribers.",
+    "api_keys_your_key": "Your API Key",
+    "api_keys_none": "No API key has been generated yet.",
+    "api_keys_generate": "Generate Key",
+    "api_keys_regenerate": "Regenerate",
+    "api_keys_generating": "Generating...",
+    "api_keys_note_1": "Keep your API key safe. It cannot be shown again.",
+    "api_keys_note_2": "Regenerating will invalidate the previous key."
   },
   "templates": {
     "title": "Templates",
@@ -308,5 +324,24 @@
     "limit_warning_title": "Approaching your limit",
     "limit_warning_desc": "{used}/{limit} conversions used ({percentage}%).",
     "upgrade_cta": "Upgrade plan →"
+  },
+  "testimonials": {
+    "title": "What Content Creators Say",
+    "subtitle": "Thousands of content creators save time with ContentForge.",
+    "t1": {
+      "quote": "Repurposing a blog post into 6 different platforms used to take me hours. Now it takes 30 seconds.",
+      "name": "Ayse Kaya",
+      "role": "Content Marketing Specialist"
+    },
+    "t2": {
+      "quote": "Grabbing my YouTube video transcripts and turning them into LinkedIn posts is incredibly easy now.",
+      "name": "Mehmet Demir",
+      "role": "Digital Entrepreneur"
+    },
+    "t3": {
+      "quote": "Preparing a newsletter now takes me 5 minutes. The tone settings work exactly as I want.",
+      "name": "Elif Yilmaz",
+      "role": "Freelance Writer"
+    }
   }
 }

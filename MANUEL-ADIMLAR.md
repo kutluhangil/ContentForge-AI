@@ -1,455 +1,798 @@
-# ContentForge — Manuel Kurulum Adımları
+# ContentForge — Manuel Kurulum Rehberi
 
-> Bu kılavuz, uygulamayı ayağa kaldırmak için **senin yapman gereken** adımları içeriyor.
-> Kod zaten hazır. Sadece bu servisleri kurman ve birbirine bağlaman gerekiyor.
-
----
-
-## BÖLÜM 1 — Supabase Kurulumu
-
-### 1.1 Supabase Projesi Oluştur
-
-1. Tarayıcında `supabase.com` adresine git.
-2. **Sign Up** ile ücretsiz hesap aç (GitHub ile bağlanabilirsin).
-3. **New Project** butonuna tıkla.
-4. Şunları doldur:
-   - **Name:** `contentforge`
-   - **Database Password:** Güçlü bir şifre yaz — bir yere kaydet, sonra lazım olacak.
-   - **Region:** Sana en yakın bölgeyi seç (örn. `Frankfurt (EU Central)`)
-5. **Create new project** tıkla. Proje hazırlanması 1-2 dakika sürer.
+> Kod tamamen hazir. Senin yapman gereken tek sey: servisleri kurmak, birbirine baglamak ve sunucuya deploy etmek.
+> Bu rehber seni bastan sona goturuyor. Her adimi siraya gore yap.
 
 ---
 
-### 1.2 Veritabanı Tablolarını Kur (Migrasyonları Çalıştır)
+## NASIL OKUNMALI
 
-Proje hazır olunca:
-
-1. Sol menüden **SQL Editor** aç.
-2. `New query` tıkla.
-3. Aşağıdaki sırayla, her dosyanın içeriğini SQL editörüne yapıştır ve **Run** tıkla:
-
-```
-supabase/migrations/001_initial_schema.sql
-supabase/migrations/002_rls_policies.sql
-supabase/migrations/003_templates_seed.sql
-supabase/migrations/004_usage_tracking.sql
-supabase/migrations/005_update_profile_trigger.sql
-supabase/migrations/006_storage_buckets.sql
-supabase/migrations/007_increment_usage_rpc.sql
-```
-
-> Her SQL dosyasını sırayla çalıştır. Bir önceki bitmeden bir sonrakine geçme.
-
-**Dosyaları açmak için:** Proje klasöründe `supabase/migrations/` klasörünü aç. Her `.sql` dosyasını bir metin editörüyle aç (Notepad, VS Code, vs.), tümünü kopyala, SQL Editor'a yapıştır, Run tıkla.
+- Her bolumun basinda o bolumde **ne yapacagin** yaziliyor.
+- `Bu sekilde yazilan seyler` komut veya deger. Birebir kopyala-yapistir.
+- > Bu sekilde yazilan satirlar ek aciklama veya uyari.
+- Her bolumun sonunda bir **kontrol noktasi** var — o noktayi gectiginden emin ol.
 
 ---
 
-### 1.3 Storage Bucket Kontrolü
+## BOLUM 1 — Supabase (Veritabani + Auth + Storage)
 
-1. Sol menüden **Storage** aç.
-2. Şu bucket'ların otomatik oluştuğunu kontrol et:
+**Bu bolumde ne yapacaksin:** Supabase'de bir proje olusturacak, tablolari kuracak, Google girisini ayarlayacak ve baglanti bilgilerini alacaksin.
+
+---
+
+### Adim 1.1 — Supabase Hesabi Ac ve Proje Olustur
+
+1. Tarayicinda `supabase.com` adresine git.
+2. Sag ustten **Start your project** tikla.
+3. GitHub hesabinla giris yap (en kolayidir).
+4. **New Project** tikla.
+5. Formu doldur:
+   - **Organization:** Varsayilan kalmasi yeterli.
+   - **Project Name:** `contentforge`
+   - **Database Password:** Guclu bir sifre gir. **Bu sifreyi bir yere kaydet**, sonra lazim olabilir.
+   - **Region:** `Central EU (Frankfurt)` sec (Turkiye'ye en yakin).
+6. **Create new project** tikla.
+7. 1-2 dakika bekle, proje hazirlaniyor.
+
+> Kontrol: Dashboard acildi mi? Sol menude tablolari, SQL Editor'u gorebiliyor musun? Tamam, devam.
+
+---
+
+### Adim 1.2 — Tablolari Kur (SQL Migrasyonlarini Calistir)
+
+Simdi veritabani tablolarini olusturacaksin. Proje klasorunde `supabase/migrations/` icinde 7 tane SQL dosyasi var. Bunlari **siraya gore** calistiracaksin.
+
+1. Supabase Dashboard'da sol menuden **SQL Editor** tikla.
+2. **New query** tikla.
+3. Bilgisayarinda proje klasorune git: `supabase/migrations/`
+4. Ilk dosyayi ac: `001_create_profiles.sql`
+5. Icindeki **tum metni** kopyala (Ctrl+A, Ctrl+C).
+6. Supabase SQL Editor'a **yapistir** (Ctrl+V).
+7. Sag alttaki **Run** butonuna tikla.
+8. "Success" yazisini gor.
+9. Editoru temizle, **ayni islemi** siradaki dosya icin tekrarla.
+
+**Siralama (bu siraya uy!):**
+
+| Sira | Dosya | Ne yapiyor |
+|------|-------|------------|
+| 1 | `001_create_profiles.sql` | Kullanici profilleri tablosu |
+| 2 | `002_create_subscriptions.sql` | Abonelik tablosu |
+| 3 | `003_create_conversions.sql` | Donusum kayitlari tablosu |
+| 4 | `004_create_outputs.sql` | Donusum ciktilari tablosu |
+| 5 | `005_create_usage.sql` | Aylik kullanim takibi |
+| 6 | `006_rls_policies.sql` | Guvenlik politikalari (RLS) |
+| 7 | `007_increment_usage_rpc.sql` | Kullanim sayaci fonksiyonu |
+
+> Uyari: Bir dosyayi calistirmadan digerine gecme. Tablolar birbirine bagimli.
+>
+> Hata aldiysan: Hata mesajini oku. Genelde "already exists" ise sorun yok, zaten kurulmus demektir. Baska bir hata ise bir onceki dosyanin duzgun calistigini kontrol et.
+
+**Kontrol:** Sol menuden **Table Editor** ac. `profiles`, `subscriptions`, `conversions`, `outputs`, `usage`, `templates` tablolarini goruyor musun? Tamam.
+
+---
+
+### Adim 1.3 — Storage Bucket'larini Kontrol Et
+
+Migration dosyalari bucket'lari otomatik olusturuyor. Kontrol edelim:
+
+1. Sol menuden **Storage** tikla.
+2. Su iki bucket var mi bak:
    - `audio-uploads`
    - `pdf-uploads`
-3. Eğer yoksa, `006_storage_buckets.sql` dosyasını tekrar çalıştır.
+3. **Yoksa:** SQL Editor'a geri don, `006_rls_policies.sql` dosyasini tekrar calistir. Hala yoksa, asagidaki SQL'i calistir:
+
+```sql
+INSERT INTO storage.buckets (id, name, public)
+VALUES ('audio-uploads', 'audio-uploads', false)
+ON CONFLICT DO NOTHING;
+
+INSERT INTO storage.buckets (id, name, public)
+VALUES ('pdf-uploads', 'pdf-uploads', false)
+ON CONFLICT DO NOTHING;
+```
+
+**Kontrol:** Storage'da iki bucket gorunuyor. Tamam.
 
 ---
 
-### 1.4 Google OAuth Ayarları
+### Adim 1.4 — Google ile Giris Ayari (OAuth)
 
-**Supabase'de:**
+Bu adim iki yerde yapiliyor: Google Cloud Console + Supabase.
 
-1. Sol menüden **Authentication** → **Providers** aç.
-2. **Google** provider'ını bul ve **Enable** tıkla.
-3. Şimdilik boş bırak, Google tarafını ayarlayınca geri geleceksin.
+**Oncelik: Supabase'de Google provider'i ac**
+
+1. Sol menuden **Authentication** tikla.
+2. Ust menude **Providers** sekmesine gec.
+3. Listede **Google**'i bul, tikla.
+4. **Enable Sign in with Google** togglini ac.
+5. Altta `Redirect URL` yaziyor — **bunu kopyala**, Google'da lazim olacak.
+   - Ornek: `https://abcdefg.supabase.co/auth/v1/callback`
+6. Sayfayi kapatma, acik birak. Google tarafini ayarlayinca geri doneceksin.
 
 **Google Cloud Console'da:**
 
-1. `console.cloud.google.com` adresine git.
-2. Yeni bir proje oluştur (veya mevcut bir projeyi seç).
-3. Sol menüden **APIs & Services** → **Credentials** aç.
-4. **+ Create Credentials** → **OAuth client ID** seç.
-5. Application type: **Web application** seç.
-6. **Authorized redirect URIs** kısmına şunu ekle:
-   ```
-   https://[SUPABASE_PROJECT_ID].supabase.co/auth/v1/callback
-   ```
-   > `SUPABASE_PROJECT_ID` nedir? Supabase'de **Settings** → **General** → **Reference ID** kısmında yazar.
-7. **Create** tıkla.
-8. Sana verilen `Client ID` ve `Client Secret`i kopyala.
+1. `console.cloud.google.com` adresine git, Google hesabinla giris yap.
+2. Ust menude proje secici var. **New Project** tikla.
+   - Name: `ContentForge` yaz.
+   - **Create** tikla.
+3. Proje acildiktan sonra sol hamburger menu > **APIs & Services** > **OAuth consent screen** tikla.
+4. **User Type:** `External` sec, **Create** tikla.
+5. Formu doldur:
+   - **App name:** `ContentForge`
+   - **User support email:** Kendi e-postan
+   - **Developer contact:** Kendi e-postan
+   - Geri kalani bos birak.
+6. **Save and Continue** tikla. Scopes ve Test users adimlarini gec (Save and Continue).
+7. Simdi sol menuden **Credentials** tikla.
+8. Ust menude **+ Create Credentials** > **OAuth client ID** tikla.
+9. **Application type:** `Web application` sec.
+10. **Name:** `ContentForge Web` yaz.
+11. **Authorized redirect URIs** bolumunde **+ Add URI** tikla.
+12. Supabase'den kopyaladigin Redirect URL'i yapistir.
+    - Ornek: `https://abcdefg.supabase.co/auth/v1/callback`
+13. **Create** tikla.
+14. Karsilastigin popup'ta **Client ID** ve **Client Secret** degerlerini kopyala.
 
-**Tekrar Supabase'e dön:**
+> Bu iki degeri kaybetme! Simdi Supabase'e geri donuyoruz.
 
-1. Google provider ayarına gir.
-2. `Client ID` ve `Client Secret`i yapıştır.
-3. **Save** tıkla.
+**Tekrar Supabase'e don:**
+
+1. Authentication > Providers > Google ayarlarini acik biraktigin sayfaya geri don.
+2. **Client ID** alanina Google'dan aldigin Client ID'yi yapistir.
+3. **Client Secret** alanina Google'dan aldigin Client Secret'i yapistir.
+4. **Save** tikla.
+
+**Kontrol:** Authentication > Providers'da Google'in yaninda yesil tik var mi? Tamam.
 
 ---
 
-### 1.5 Supabase Bağlantı Bilgilerini Al
+### Adim 1.5 — Baglanti Bilgilerini Al (Env Degerleri)
 
-1. Supabase'de sol menüden **Settings** → **API** aç.
-2. Şu değerleri not al:
-   - **Project URL** → `NEXT_PUBLIC_SUPABASE_URL` olacak
-   - **anon public** key → `NEXT_PUBLIC_SUPABASE_ANON_KEY` olacak
-   - **service_role** key → `SUPABASE_SERVICE_ROLE_KEY` olacak (bunu kimseyle paylaşma!)
+Su 3 degeri bir yere not al, ileride `.env` dosyasina yazacaksin.
+
+1. Supabase'de sol menuden **Settings** (disli ikon) tikla.
+2. **API** sekmesine gec.
+3. Su degerleri kopyala:
+
+| Nerede bulacaksin | Ne olacak |
+|---|---|
+| **Project URL** (ustte) | `NEXT_PUBLIC_SUPABASE_URL` |
+| **anon public** (API Keys bolumunde) | `NEXT_PUBLIC_SUPABASE_ANON_KEY` |
+| **service_role** (API Keys bolumunde, gizli) | `SUPABASE_SERVICE_ROLE_KEY` |
+
+> `service_role` anahtarini gostermek icin goz ikonuna tikla. Bu anahtari **kimseyle paylasma**, client-side koda koyma. Sadece sunucuda kullanilacak.
+
+**Kontrol:** 3 degeri bir yere kaydettim. Tamam.
 
 ---
 
-## BÖLÜM 2 — OpenAI API Anahtarı
+## BOLUM 2 — OpenAI API Anahtari
+
+**Bu bolumde ne yapacaksin:** GPT-4o ve Whisper (ses→metin) icin OpenAI API anahtari alacaksin.
+
+---
+
+### Adim 2.1 — OpenAI Hesabi ve API Key
 
 1. `platform.openai.com` adresine git.
-2. Hesabın yoksa kayıt ol.
-3. Sol menüden **API Keys** aç.
-4. **+ Create new secret key** tıkla.
-5. Bir isim ver (örn. `contentforge`) ve **Create** tıkla.
-6. Verilen anahtarı (sk-...) kopyala — **sadece bir kez gösterilir, kaydet**.
-7. Bu değer → `OPENAI_API_KEY` olacak.
+2. Hesabin yoksa kayit ol.
+3. Sol menuden **API Keys** tikla.
+4. **+ Create new secret key** tikla.
+5. **Name:** `contentforge` yaz.
+6. **Create secret key** tikla.
+7. Gosterilen anahtari (`sk-proj-...`) **hemen kopyala ve kaydet**.
 
-> **Not:** GPT-4o kullanmak için OpenAI hesabında kredi/ödeme yöntemi tanımlı olması gerekir.
+> Uyari: Bu anahtar sadece bir kez gosterilir. Kaydetmeden sayfayi kapatirsan, yenisini olusturman gerekir.
+
+### Adim 2.2 — Odeme Yontemi Ekle
+
+OpenAI API ucretsiz degil. GPT-4o kullanmak icin hesapta bakiye/odeme yontemi olmasi gerekir.
+
+1. Sol menuden **Settings** > **Billing** tikla.
+2. **Add payment method** tikla.
+3. Kredi kartini ekle.
+4. **Add to balance** ile en az $5 bakiye yukle (baslangic icin yeterli).
+
+> Not: Bir donusum yaklasik $0.01-0.05 arasinda tutuyor. 3 ucretsiz donusum icin bile API maliyeti senin uzerinde.
+
+**Kontrol:** API key'i bir yere kaydettim, bakiye yukledim. Tamam.
+
+| Nerede bulacaksin | Ne olacak |
+|---|---|
+| API Keys sayfasinda olusturulan anahtar | `OPENAI_API_KEY` |
 
 ---
 
-## BÖLÜM 3 — Lemon Squeezy (Ödeme Sistemi)
+## BOLUM 3 — Lemon Squeezy (Odeme Sistemi)
 
-### 3.1 Hesap ve Mağaza Oluştur
+**Bu bolumde ne yapacaksin:** Lemon Squeezy'de magaza acip, 2 urun (Starter + Pro) olusturacak ve webhook kuracaksin.
+
+---
+
+### Adim 3.1 — Hesap ve Magaza Olustur
 
 1. `lemonsqueezy.com` adresine git.
-2. Hesap aç ve **Create a store** ile yeni mağaza oluştur.
-3. Mağaza adını yaz (örn. `ContentForge`).
+2. **Get started free** tikla, hesap olustur.
+3. Ilk girisinde magaza olusturma ekrani gelecek:
+   - **Store name:** `ContentForge`
+   - Gereken bilgileri doldur (ulke, para birimi USD sec).
+4. Magaza olusturulduktan sonra Dashboard'a yonlendirileceksin.
 
 ---
 
-### 3.2 Ürünleri ve Fiyatları Oluştur
+### Adim 3.2 — Urunleri Olustur
 
-**Starter Plan (Aylık) için:**
+4 variant olusturman gerekiyor: Starter Monthly, Starter Yearly, Pro Monthly, Pro Yearly.
 
-1. Sol menüden **Products** → **New product** tıkla.
-2. Şunları doldur:
+**Starter Plan:**
+
+1. Sol menuden **Store** > **Products** tikla.
+2. **+ New product** tikla.
+3. Formu doldur:
    - **Name:** `ContentForge Starter`
-   - **Description:** İstediğin gibi yaz
-   - **Pricing:** `$19.00 USD` / Monthly (Recurring)
-3. **Save** tıkla.
-4. Ürünü aç → **Variants** sekmesinde aylık variant'ın ID'sini not al (URL'de veya sayfada görünür).
-   → Bu değer = `LEMON_STARTER_MONTHLY_VARIANT_ID`
+   - **Price:** `$19.00`
+   - **Billing period:** `Monthly`
+   - **This is a subscription product** secenegini isaretle.
+4. **Publish** tikla.
+5. Urunu ac, URL'deki veya sayfadaki **Variant ID** numarasini not al.
+   → `LEMON_STARTER_MONTHLY_VARIANT_ID`
+6. Ayni urunun icinde **Variants** sekmesinden **+ Add variant** tikla:
+   - **Name:** `Yearly`
+   - **Price:** `$182.40`
+   - **Billing period:** `Yearly`
+7. Kaydet. Bu variant'in ID'sini de not al.
+   → `LEMON_STARTER_YEARLY_VARIANT_ID`
 
-**Starter Plan (Yıllık) için:**
+**Pro Plan:**
 
-1. Aynı ürünün içinde **Add variant** tıkla.
-2. Fiyat: `$182.40 USD` / Yearly (Recurring)
-3. Variant ID'yi not al → `LEMON_STARTER_YEARLY_VARIANT_ID`
-
-**Pro Plan (Aylık) için:**
-
-1. Yeni ürün oluştur: `ContentForge Pro` / `$49.00 USD` / Monthly
+1. Yeni urun olustur: **+ New product**
+   - **Name:** `ContentForge Pro`
+   - **Price:** `$49.00` / Monthly (subscription)
 2. Variant ID'yi not al → `LEMON_PRO_MONTHLY_VARIANT_ID`
+3. Ayni urune yillik variant ekle: `$470.40` / Yearly
+4. Variant ID'yi not al → `LEMON_PRO_YEARLY_VARIANT_ID`
 
-**Pro Plan (Yıllık) için:**
-
-1. Aynı ürüne yeni variant: `$470.40 USD` / Yearly
-2. Variant ID'yi not al → `LEMON_PRO_YEARLY_VARIANT_ID`
-
----
-
-### 3.3 API Anahtarını Al
-
-1. Lemon Squeezy'de sağ üst profiline tıkla → **Settings** → **API** aç.
-2. **New API key** oluştur.
-3. Kopyala → `LEMON_SQUEEZY_API_KEY` olacak.
+**Kontrol:** 4 variant ID'yi bir yere kaydettim. Tamam.
 
 ---
 
-### 3.4 Store ID'yi Al
+### Adim 3.3 — API Key ve Store ID Al
 
-1. Sol menüden **Settings** → **General** aç.
-2. **Store ID** değerini not al → `LEMON_SQUEEZY_STORE_ID` olacak.
+**API Key:**
 
----
+1. Sag ust profil ikonuna tikla > **Settings** sec.
+2. Sol menude **API Keys** tikla (veya **API** sekmesine gec).
+3. **+** butonuyla yeni API key olustur.
+4. Kopyala → `LEMONSQUEEZY_API_KEY`
 
-### 3.5 Webhook Kur (Abonelik Takibi İçin)
+**Store ID:**
 
-1. Sol menüden **Settings** → **Webhooks** aç.
-2. **Add webhook** tıkla.
-3. Şunları doldur:
-   - **URL:** `https://SENIN-DOMAININ.com/api/webhooks/lemonsqueezy`
-   - **Events:** Tüm `subscription_*` ve `order_*` event'leri seç
-   - **Signing secret:** Güçlü bir şifre oluştur (örn. 32 karakter rastgele) — kaydet
-4. **Save** tıkla.
-5. Bu signing secret → `LEMON_WEBHOOK_SECRET` olacak.
+1. Settings > **General** sekmesinde **Store ID** degerini bul.
+2. Kopyala → `LEMONSQUEEZY_STORE_ID`
 
-> **Not:** Domain henüz yoksa, deploy sonrası bu URL'i güncelleyebilirsin.
+**Kontrol:** API key ve Store ID kaydedildi. Tamam.
 
 ---
 
-## BÖLÜM 4 — Sunucu Kurulumu
+### Adim 3.4 — Webhook Kur
 
-### 4.1 Sunucu Gereksinimleri
+Webhook, birisi odeme yaptiginda veya aboneligini iptal ettiginde uygulamanin haberdar olmasini saglar.
 
-Bir Ubuntu sunucuna ihtiyacın var. Önerilen:
-- **DigitalOcean Droplet**, **Hetzner VPS**, veya **Linode** (en az 2GB RAM, 2 CPU)
-- Ubuntu 22.04 veya 24.04
+1. Settings > **Webhooks** tikla.
+2. **+** butonuna tikla (veya **Add endpoint**).
+3. Formu doldur:
+   - **Callback URL:** `https://SENIN-DOMAININ/api/webhooks/lemonsqueezy`
+   - **Signing secret:** Guclu bir sifre olustur.
+     - Kolay yontem: Terminalde `openssl rand -hex 32` calistir ve ciktisini kopyala.
+     - Veya herhangi bir sifre uretici siteden 32+ karakter al.
+   - **Events:** Su eventleri sec:
+     - `subscription_created`
+     - `subscription_updated`
+     - `subscription_cancelled`
+     - `subscription_expired`
+     - `subscription_resumed`
+     - `subscription_payment_success`
+     - `subscription_payment_failed`
+4. **Save** tikla.
+5. Signing secret'i kaydet → `LEMONSQUEEZY_WEBHOOK_SECRET`
+
+> Not: Domain henuz yoksa webhook URL'ini sonra guncelleyebilirsin. Oncelikle diger adimlara devam et.
+
+**Kontrol:** Webhook olusturuldu, signing secret kaydedildi. Tamam.
 
 ---
 
-### 4.2 Sunucuya İlk Bağlantı ve Hazırlık
+## BOLUM 4 — Tum Degerleri Topla (Env Checklist)
 
-SSH ile sunucuya bağlan:
+Buraya kadar toplamis olman gereken degerler:
+
+| Degisken | Nereden Aldin | Ornek |
+|----------|---------------|-------|
+| `NEXT_PUBLIC_SUPABASE_URL` | Supabase > Settings > API | `https://abcde.supabase.co` |
+| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Supabase > Settings > API | `eyJhbGci...` |
+| `SUPABASE_SERVICE_ROLE_KEY` | Supabase > Settings > API | `eyJhbGci...` |
+| `OPENAI_API_KEY` | OpenAI > API Keys | `sk-proj-...` |
+| `LEMONSQUEEZY_API_KEY` | LemonSqueezy > Settings > API | `eyJ...` |
+| `LEMONSQUEEZY_WEBHOOK_SECRET` | Webhook olustururken girdigin secret | `a3f8b2...` |
+| `LEMONSQUEEZY_STORE_ID` | LemonSqueezy > Settings > General | `12345` |
+| `LEMON_STARTER_MONTHLY_VARIANT_ID` | Starter urun > Monthly variant | `67890` |
+| `LEMON_STARTER_YEARLY_VARIANT_ID` | Starter urun > Yearly variant | `67891` |
+| `LEMON_PRO_MONTHLY_VARIANT_ID` | Pro urun > Monthly variant | `67892` |
+| `LEMON_PRO_YEARLY_VARIANT_ID` | Pro urun > Yearly variant | `67893` |
+
+> Eksik olan var mi? Eksikse ilgili bolume geri don.
+
+---
+
+## BOLUM 5 — Sunucu Kurulumu ve Deploy
+
+**Bu bolumde ne yapacaksin:** Bir Ubuntu sunucuya Docker kuracak, projeyi deploy edecek ve SSL ile canli hale getireceksin.
+
+---
+
+### Adim 5.1 — Sunucu Edin
+
+Bir VPS (sanal sunucu) lazim. Oneriler:
+
+| Saglayici | Minimum Plan | Fiyat |
+|-----------|-------------|-------|
+| Hetzner | CX22 (2 vCPU, 4GB RAM) | ~$4.5/ay |
+| DigitalOcean | Basic Droplet (2 vCPU, 2GB RAM) | ~$12/ay |
+| Linode | Nanode 2GB | ~$12/ay |
+
+**Olusturma adimlari (Hetzner ornegi):**
+
+1. `console.hetzner.cloud` adresine git, hesap ac.
+2. **Add Server** tikla.
+3. Ayarlar:
+   - **Location:** Nuremberg veya Helsinki
+   - **Image:** `Ubuntu 24.04`
+   - **Type:** `CX22` (veya benzer 2GB+ RAM)
+   - **SSH Key:** Varsa ekle, yoksa sifre ile giris sec.
+4. **Create & Buy Now** tikla.
+5. IP adresini not al.
+
+> Ev sunucun varsa (Ubuntu 22.04+) onu da kullanabilirsin. Minimum 2GB RAM oneriliyor.
+
+---
+
+### Adim 5.2 — Sunucuya Baglan
+
+Kendi bilgisayarinda terminal/komut satirini ac:
+
+**Mac/Linux:**
 ```bash
 ssh root@SUNUCU_IP_ADRESI
 ```
 
-Kurulum scriptini çalıştır (Docker ve temel ayarları yapar):
+**Windows:**
+- PowerShell veya Windows Terminal ac:
 ```bash
-bash <(curl -s https://raw.githubusercontent.com/KULLANICI_ADIN/ContentForge-AI/main/scripts/deploy.sh)
+ssh root@SUNUCU_IP_ADRESI
 ```
+- Veya PuTTY kullan.
 
-> Script şunları yapar: UFW firewall açar (80, 443, 22), Docker kurar, repoyu klonlar.
+Ilk baglantida "Are you sure?" sorusu gelecek — `yes` yaz, Enter.
+Sifre sorarsa, sunucu olustururken belirledigin sifreyi gir.
+
+**Kontrol:** `root@sunucu:~#` gibi bir komut satiri goruyorsun. Tamam.
 
 ---
 
-### 4.3 Environment Dosyasını Oluştur
+### Adim 5.3 — Deploy Scriptini Calistir
 
-Sunucuda projenin bulunduğu klasöre git:
+Bu script Docker'i kurar, firewall'u ayarlar, repoyu klonlar ve servisleri baslatir.
+
+```bash
+apt-get update -qq && apt-get install -y -qq curl git
+git clone https://github.com/kutluhangil/ContentForge-AI.git /opt/contentforge
+```
+
+> Eger repo private ise, once GitHub'da Personal Access Token olusturup su formatta kullan:
+> `git clone https://TOKEN@github.com/kutluhangil/ContentForge-AI.git /opt/contentforge`
+
+Simdi deploy scriptini calistir:
+
 ```bash
 cd /opt/contentforge
+sudo bash scripts/deploy.sh
 ```
 
-`.env.production` dosyası oluştur:
+Script surada duracak ve sana hata verecek: **".env.production dosyasi eksik!"**
+Bu normal. Simdiki adimda olusturacagiz.
+
+---
+
+### Adim 5.4 — Environment Dosyasini Olustur
+
 ```bash
-nano .env.production
+nano /opt/contentforge/.env.production
 ```
 
-Aşağıdaki şablonu yapıştır ve değerleri doldur:
+Asagidaki sablonu yapistr ve degerleri BOLUM 4'teki kayitli degerlerinden doldur:
 
-```env
-# Uygulama URL'i (domainin)
-NEXT_PUBLIC_APP_URL=https://senin-domainin.com
+```
+# Uygulama
+NEXT_PUBLIC_APP_URL=https://SENIN-DOMAININ.com
+NEXT_PUBLIC_DEFAULT_LOCALE=tr
 
 # Supabase
 NEXT_PUBLIC_SUPABASE_URL=https://PROJE_ID.supabase.co
-NEXT_PUBLIC_SUPABASE_ANON_KEY=eyJ...
-SUPABASE_SERVICE_ROLE_KEY=eyJ...
+NEXT_PUBLIC_SUPABASE_ANON_KEY=buraya-anon-key
+SUPABASE_SERVICE_ROLE_KEY=buraya-service-role-key
 
 # OpenAI
-OPENAI_API_KEY=sk-...
+OPENAI_API_KEY=sk-proj-buraya-key
 
 # Lemon Squeezy
-LEMON_SQUEEZY_API_KEY=...
-LEMON_SQUEEZY_STORE_ID=...
-LEMON_WEBHOOK_SECRET=...
-LEMON_STARTER_MONTHLY_VARIANT_ID=...
-LEMON_STARTER_YEARLY_VARIANT_ID=...
-LEMON_PRO_MONTHLY_VARIANT_ID=...
-LEMON_PRO_YEARLY_VARIANT_ID=...
+LEMONSQUEEZY_API_KEY=buraya-ls-api-key
+LEMONSQUEEZY_WEBHOOK_SECRET=buraya-webhook-secret
+LEMONSQUEEZY_STORE_ID=12345
+LEMON_STARTER_MONTHLY_VARIANT_ID=67890
+LEMON_STARTER_YEARLY_VARIANT_ID=67891
+LEMON_PRO_MONTHLY_VARIANT_ID=67892
+LEMON_PRO_YEARLY_VARIANT_ID=67893
 
-# Redis (docker-compose içinde otomatik ayarlanır)
+# Redis (degistirme, docker-compose icinde otomatik ayarli)
 REDIS_URL=redis://redis:6379
 ```
 
-Kaydet: `Ctrl+X`, sonra `Y`, sonra `Enter`.
+Kaydetmek icin: `Ctrl+X`, sonra `Y`, sonra `Enter`.
 
 ---
 
-### 4.4 Uygulamayı Başlat
+### Adim 5.5 — Deploy Scriptini Tekrar Calistir
 
 ```bash
-cd /opt/contentforge
-docker compose -f docker/docker-compose.yml up -d
+sudo bash scripts/deploy.sh
 ```
 
-Çalışıyor mu kontrol et:
+Bu sefer env dosyasini bulacak ve devam edecek. Script:
+- Docker imajlarini build edecek (5-10 dakika surebilir)
+- Redis, App, Worker ve Caddy containerlarini baslatacak
+- Health check yapacak
+
+Basarili olursa sunu goreceksin:
+```
+[  ok  ] ContentForge basariyla deploy edildi!
+```
+
+Kontrol etmek icin:
 ```bash
-docker compose -f docker/docker-compose.yml ps
+docker compose -f /opt/contentforge/docker/docker-compose.yml ps
 ```
 
-Tüm container'lar `Up` durumunda olmalı (`app`, `worker`, `redis`, `caddy`).
+4 container gorunmeli: `redis`, `app`, `worker`, `caddy` — hepsi `Up` durumunda.
 
-Logları izlemek için:
-```bash
-docker compose -f docker/docker-compose.yml logs -f app
-```
+> Hata aldiysan: `docker compose -f /opt/contentforge/docker/docker-compose.yml logs app` ile loglari kontrol et.
 
 ---
 
-## BÖLÜM 5 — Domain ve SSL Ayarları
+### Adim 5.6 — Domain ve DNS Ayari
 
-### 5.1 DNS Ayarı
+Bir domain'in olmasi gerekiyor (ornek: `contentforge.app`). Domain saglayicinda (Namecheap, Cloudflare, GoDaddy, vs.):
 
-Domain sağlayıcında (GoDaddy, Namecheap, Cloudflare, vs.):
-
-1. DNS yönetimine gir.
+1. DNS yonetimine gir.
 2. **A Record** ekle:
-   - **Name:** `@` (veya `contentforge`)
-   - **Value:** Sunucunun IP adresi
-   - **TTL:** 3600 (veya Auto)
-3. **www** için de aynı A Record ekle (isteğe bağlı).
 
-> DNS yayılması 5-30 dakika sürebilir.
+| Tip | Name | Deger | TTL |
+|-----|------|-------|-----|
+| A | `@` | Sunucunun IP adresi | 3600 |
+| A | `www` | Sunucunun IP adresi | 3600 |
+
+> DNS yayilmasi 5-30 dakika surebilir. `ping senin-domainin.com` ile IP adresini dogrulayabilirsin.
 
 ---
 
-### 5.2 Caddy SSL
+### Adim 5.7 — Caddyfile'da Domain Guncelle
 
-Caddy, SSL sertifikasını **otomatik olarak** Let's Encrypt'ten alır. Tek yapman gereken şey:
+Caddy otomatik SSL sertifikasi aliyor ama hangi domain icin calisacagini bilmesi gerekiyor.
 
-`docker/Caddyfile` dosyasında `yourdomain.com` yazan yerleri kendi domaininle değiştirmiş olmak.
-
-Dosyayı düzenlemek için:
 ```bash
 nano /opt/contentforge/docker/Caddyfile
 ```
 
-`yourdomain.com` yerine kendi domaini yaz, kaydet.
+Dosyada **2 yerde** `contentforge.app` yaziliyor. Ikisini de kendi domainle degistir:
 
-Sonra Caddy'yi yeniden başlat:
+```
+contentforge.app {        ←  BUNU DEGISTIR
+    ...
+}
+
+www.contentforge.app {    ←  BUNU DA DEGISTIR
+    redir https://contentforge.app{uri} permanent    ←  BURADAKINI DE
+}
+```
+
+Kaydet: `Ctrl+X`, `Y`, `Enter`.
+
+Caddy'yi yeniden baslat:
 ```bash
-docker compose -f docker/docker-compose.yml restart caddy
+docker compose -f /opt/contentforge/docker/docker-compose.yml restart caddy
 ```
 
-Birkaç dakika sonra `https://senin-domainin.com` adresine gittiğinde uygulama açılmalı.
+1-2 dakika bekle. Caddy otomatik olarak Let's Encrypt'ten SSL sertifikasi alacak.
+
+**Kontrol:** Tarayicida `https://senin-domainin.com` adresine git. Sayfa aciliyor mu? Kilit ikonu var mi (SSL)? Tamam.
 
 ---
 
-## BÖLÜM 6 — GitHub Actions (Otomatik Deploy)
+## BOLUM 6 — Webhook URL'ini Guncelle
 
-Kod push ettiğinde sunucuya otomatik deploy için:
+Domain artik hazir. Lemon Squeezy webhook'una gercek URL'i girmemiz gerekiyor.
 
-### 6.1 GitHub Secrets Ekle
+1. `lemonsqueezy.com` > Settings > Webhooks'a git.
+2. Olusturdugum webhook'u tikla (duzenle).
+3. **Callback URL**'i guncelle:
+   ```
+   https://SENIN-DOMAININ.com/api/webhooks/lemonsqueezy
+   ```
+4. **Save** tikla.
 
-GitHub'da reponun sayfasına git → **Settings** → **Secrets and variables** → **Actions** → **New repository secret**.
-
-Aşağıdaki secret'ları ekle (her biri için ayrı ayrı):
-
-| Secret Adı | Değer |
-|------------|-------|
-| `DEPLOY_HOST` | Sunucunun IP adresi |
-| `DEPLOY_USER` | `root` (veya sunucu kullanıcı adın) |
-| `DEPLOY_KEY` | SSH private key (aşağıda anlatılıyor) |
-| `GHCR_TOKEN` | GitHub Personal Access Token |
-| `NEXT_PUBLIC_APP_URL` | `https://senin-domainin.com` |
-| `NEXT_PUBLIC_SUPABASE_URL` | Supabase URL |
-| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Supabase anon key |
+**Kontrol:** Webhook ayarlarinda dogru URL gorunuyor. Tamam.
 
 ---
 
-### 6.2 SSH Key Oluştur (CI/CD için)
+## BOLUM 7 — Test Et
 
-Yerelde (kendi bilgisayarında) terminali aç:
+### 7.1 — Health Check
 
-```bash
-ssh-keygen -t ed25519 -C "github-actions" -f ~/.ssh/contentforge_deploy
+Tarayicida su adrese git:
+```
+https://SENIN-DOMAININ.com/api/health
 ```
 
-Şifre sorduğunda boş bırak (Enter).
-
-**Public key'i sunucuya ekle:**
-```bash
-cat ~/.ssh/contentforge_deploy.pub
-```
-Çıktıyı kopyala. Sunucuda:
-```bash
-echo "BURAYA_PUBLIC_KEY_YAPISTIR" >> ~/.ssh/authorized_keys
-```
-
-**Private key'i GitHub Secret olarak ekle:**
-```bash
-cat ~/.ssh/contentforge_deploy
-```
-Çıktının tamamını kopyala (-----BEGIN ile -----END satırları dahil). GitHub'da `DEPLOY_KEY` secret'ına yapıştır.
+`{"status":"ok"}` donuyorsa uygulama calisiyor.
 
 ---
 
-### 6.3 GitHub Container Registry Token
+### 7.2 — Kayit ve Giris Testi
 
-1. GitHub'da sağ üst profil → **Settings** → **Developer settings** → **Personal access tokens** → **Tokens (classic)**.
-2. **Generate new token (classic)** tıkla.
-3. Şu izni seç: `write:packages`
-4. **Generate** tıkla, tokeni kopyala.
-5. GitHub repo secret'larına `GHCR_TOKEN` olarak ekle.
+1. `https://SENIN-DOMAININ.com/tr/register` adresine git.
+2. E-posta + sifre ile kayit ol, **veya** "Google ile devam et" tikla.
+3. Dashboard acildiysa her sey calisiyor.
 
 ---
 
-## BÖLÜM 7 — Test ve Kontrol
+### 7.3 — Donusum Testi
 
-### 7.1 Uygulama Çalışıyor mu?
+1. Dashboard'da **Yeni Donusum** (veya sol menude **Donustur**) tikla.
+2. Kaynak olarak **Metin Yapistir** sec.
+3. Herhangi bir blog yazisi metni yapistir (2-3 paragraf yeterli).
+4. Format olarak **LinkedIn Post** sec.
+5. Ton: **Profesyonel** kalsin.
+6. **Donustur** tikla.
+7. 15-30 saniye bekle. Sonuc gorunecek.
 
-```
-https://senin-domainin.com/api/health
-```
-Bu adrese git. `{"status":"ok"}` dönüyorsa uygulama çalışıyor.
-
----
-
-### 7.2 İlk Kullanıcı Testi
-
-1. `https://senin-domainin.com/tr/register` adresine git.
-2. Kayıt ol (Google veya e-posta ile).
-3. Dashboard açılıyorsa her şey çalışıyor.
-4. Bir dönüşüm dene: Blog URL yapıştır, format seç, dönüştür.
+> Hata aldiysan: OpenAI API key'ini ve bakiyeni kontrol et. Sunucuda loglari incele:
+> ```bash
+> docker compose -f /opt/contentforge/docker/docker-compose.yml logs -f worker
+> ```
 
 ---
 
-### 7.3 Webhook Testi (Lemon Squeezy)
+### 7.4 — Webhook Testi
 
-1. Lemon Squeezy → Webhook ayarlarına gir.
-2. **Send test** ile test event gönder.
+1. Lemon Squeezy > Settings > Webhooks'a git.
+2. Webhook'un yanindaki **...** menusunden **Send test webhook** sec.
 3. Sunucuda logu kontrol et:
    ```bash
-   docker compose -f docker/docker-compose.yml logs app | grep webhook
+   docker compose -f /opt/contentforge/docker/docker-compose.yml logs app | grep -i webhook
    ```
+4. Log'da webhook alindi mesaji goruyorsan tamam.
 
 ---
 
-## BÖLÜM 8 — İzleme (Opsiyonel ama Önerilen)
+## BOLUM 8 — GitHub Actions ile Otomatik Deploy (Opsiyonel)
 
-### Uptime Kuma ile Anlık Durum Takibi
+**Bu bolumde ne yapacaksin:** Kod push ettiginde sunucuya otomatik deploy icin CI/CD pipeline kuracaksin. **Bu adim zorunlu degil**, ama her kod degisikliginde sunucuya baglanip elle deploy yapmak istemiyorsan cok faydali.
 
-1. Sunucuda Uptime Kuma kur:
+---
+
+### Adim 8.1 — SSH Key Olustur (CI/CD icin)
+
+Kendi bilgisayarinda terminal ac:
+
+```bash
+ssh-keygen -t ed25519 -C "github-actions-deploy" -f ~/.ssh/contentforge_deploy
+```
+
+Sifre sorarsa **bos birak** (Enter, Enter).
+
+Iki dosya olusacak:
+- `~/.ssh/contentforge_deploy` — Private key (gizli, GitHub'a eklenecek)
+- `~/.ssh/contentforge_deploy.pub` — Public key (sunucuya eklenecek)
+
+**Public key'i sunucuya ekle:**
+
+```bash
+# Kendi bilgisayarinda:
+cat ~/.ssh/contentforge_deploy.pub
+```
+
+Ciktinin tamamini kopyala. Sunucuya baglan ve:
+
+```bash
+# Sunucuda:
+echo "BURAYA-PUBLIC-KEY-YAPISTIR" >> ~/.ssh/authorized_keys
+```
+
+---
+
+### Adim 8.2 — GitHub Secrets Ekle
+
+GitHub'da reponun sayfasina git > **Settings** > **Secrets and variables** > **Actions** > **New repository secret**.
+
+Her bir secret icin **ayri ayri** "New repository secret" tikla:
+
+| Secret Adi | Degeri | Aciklama |
+|---|---|---|
+| `SERVER_HOST` | `123.45.67.89` | Sunucunun IP adresi |
+| `SERVER_USER` | `root` | SSH kullanici adi |
+| `SERVER_SSH_KEY` | `-----BEGIN OPENSSH PRIVATE KEY-----...` | `cat ~/.ssh/contentforge_deploy` ciktisinin **tamami** (BEGIN ve END satirlari dahil) |
+| `NEXT_PUBLIC_SUPABASE_URL` | `https://abcde.supabase.co` | Supabase URL |
+| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | `eyJ...` | Supabase anon key |
+
+> `SERVER_PORT` secimi: Eger SSH farkli portta ise ekle, standart 22 ise ekleme.
+
+---
+
+### Adim 8.3 — Test Et
+
+1. Kodda kucuk bir degisiklik yap (ornek: README'ye bir satir ekle).
+2. Commit et ve `main` branch'ine push et:
    ```bash
-   docker run -d --restart=always -p 3001:3001 -v uptime-kuma:/app/data --name uptime-kuma louislam/uptime-kuma:1
+   git add -A && git commit -m "test: CI/CD pipeline" && git push
    ```
-2. `http://SUNUCU_IP:3001` adresine git.
-3. İlk kurulumda kullanıcı adı ve şifre oluştur.
-4. **Add New Monitor** tıkla:
-   - Type: `HTTP(s)`
-   - URL: `https://senin-domainin.com/api/health`
-   - Interval: `60 seconds`
-5. E-posta veya Telegram bildirimi ayarlayabilirsin.
+3. GitHub'da reponun **Actions** sekmesine git.
+4. Calisma basladiysa ve yesil tik aldiysa CI/CD calisiyor.
+
+> Basarisiz olursa: Actions'da ilgili run'i tikla, hangi adimda hata aldigini oku.
 
 ---
 
-## ÖZET — Kontrol Listesi
+## BOLUM 9 — Uptime Kuma ile Izleme (Opsiyonel)
 
-Sıraya göre yap, her birini tamamlayınca işaretle:
+**Bu bolumde ne yapacaksin:** Uygulama cokerse seni bilgilendirecek bir monitoring sistemi kuracaksin.
 
-- [ ] Supabase projesi oluşturuldu
-- [ ] SQL migrasyonları çalıştırıldı (001 → 007)
-- [ ] Storage bucket'ları kontrol edildi
-- [ ] Google OAuth ayarlandı
-- [ ] Supabase bağlantı bilgileri not alındı
-- [ ] OpenAI API anahtarı oluşturuldu
-- [ ] Lemon Squeezy mağazası açıldı
-- [ ] 4 ürün/variant oluşturuldu (Starter Monthly/Yearly, Pro Monthly/Yearly)
-- [ ] Lemon Squeezy webhook ayarlandı
-- [ ] Sunucu kuruldu (Ubuntu 22.04+)
-- [ ] `.env.production` dosyası oluşturuldu ve dolduruldu
-- [ ] `docker compose up -d` çalıştırıldı
-- [ ] Domain DNS ayarı yapıldı
-- [ ] Caddyfile'da domain adı güncellendi
-- [ ] SSL sertifikası otomatik alındı (Caddy)
-- [ ] `/api/health` endpoint'i `ok` dönüyor
-- [ ] İlk kullanıcı kaydı ve dönüşüm testi yapıldı
-- [ ] GitHub Actions secrets eklendi (opsiyonel — otomatik deploy için)
-- [ ] Uptime Kuma kuruldu (opsiyonel — izleme için)
+docker-compose.yml'de Uptime Kuma zaten tanimli. Ayri bir container olarak da kurabilirsin:
+
+```bash
+docker run -d \
+  --restart=always \
+  --name uptime-kuma \
+  -p 3001:3001 \
+  -v uptime-kuma-data:/app/data \
+  louislam/uptime-kuma:1
+```
+
+1. Tarayicida `http://SUNUCU_IP:3001` adresine git.
+2. Ilk acilista kullanici adi + sifre olustur.
+3. **Add New Monitor** tikla:
+   - **Monitor Type:** `HTTP(s)`
+   - **Friendly Name:** `ContentForge`
+   - **URL:** `https://SENIN-DOMAININ.com/api/health`
+   - **Heartbeat Interval:** `60` (saniye)
+4. **Save** tikla.
+
+Bildirim icin (uygulama duserse haber versin):
+1. Sol menude **Settings** > **Notifications** tikla.
+2. **Setup Notification** tikla.
+3. Telegram, Discord, E-posta gibi seceneklerden birini ayarla.
 
 ---
 
-## YARDIM
+## SON KONTROL LISTESI
 
-Bir adımda takılırsan:
+Her adimi tamamlayinca isaretleyebilirsin:
 
-- **Supabase:** `supabase.com/docs`
-- **Lemon Squeezy:** `docs.lemonsqueezy.com`
-- **Docker:** `docs.docker.com`
-- **Caddy:** `caddyserver.com/docs`
+```
+SUPABASE
+  [ ] Proje olusturuldu
+  [ ] 7 SQL migrasyonu siraya gore calistirildi
+  [ ] Storage bucket'lari kontrol edildi (audio-uploads, pdf-uploads)
+  [ ] Google OAuth ayarlandi (Google Console + Supabase)
+  [ ] 3 baglanti bilgisi kaydedildi (URL, anon key, service role key)
 
-Hata mesajı alırsan, tam mesajı bir yere not al ve çözüme göre ilerle.
+OPENAI
+  [ ] API key olusturuldu ve kaydedildi
+  [ ] Odeme yontemi / bakiye eklendi
+
+LEMON SQUEEZY
+  [ ] Magaza olusturuldu
+  [ ] Starter urunu olusturuldu (monthly + yearly variant)
+  [ ] Pro urunu olusturuldu (monthly + yearly variant)
+  [ ] 4 variant ID kaydedildi
+  [ ] API key ve Store ID kaydedildi
+  [ ] Webhook olusturuldu, signing secret kaydedildi
+
+SUNUCU
+  [ ] VPS / sunucu edinildi (Ubuntu 22.04+)
+  [ ] Repo klonlandi (/opt/contentforge)
+  [ ] .env.production dosyasi olusturuldu ve tum degerler dolduruldu
+  [ ] deploy.sh calistirildi, 4 container Up durumunda
+
+DOMAIN & SSL
+  [ ] DNS A Record ayarlandi (@ ve www)
+  [ ] Caddyfile'da domain guncellendi
+  [ ] Caddy yeniden baslatildi, SSL sertifikasi alindi
+  [ ] https://domain.com aciliyor ve kilit ikonu var
+
+WEBHOOK
+  [ ] Lemon Squeezy webhook URL'i gercek domain ile guncellendi
+
+TEST
+  [ ] /api/health → {"status":"ok"} donuyor
+  [ ] Kayit olunabiliyor (e-posta veya Google)
+  [ ] Dashboard aciliyor
+  [ ] Donusum yapilabiliyor (metin → LinkedIn post)
+  [ ] Webhook test event'i aliniyor
+
+OPSIYONEL
+  [ ] GitHub Actions secrets eklendi (CI/CD icin)
+  [ ] CI/CD pipeline test edildi
+  [ ] Uptime Kuma kuruldu ve monitor eklendi
+```
+
+---
+
+## SIKCA KARSILASILAN SORUNLAR
+
+### "502 Bad Gateway" alirsam?
+
+App container'i henuz hazir degil veya cokmus olabilir:
+```bash
+docker compose -f /opt/contentforge/docker/docker-compose.yml logs app
+```
+
+### Donusum baslatiyorum ama sonuc gelmiyor?
+
+Worker container'ini kontrol et:
+```bash
+docker compose -f /opt/contentforge/docker/docker-compose.yml logs -f worker
+```
+OpenAI API key'inin dogru oldugunu ve bakiyenin oldugunu kontrol et.
+
+### Google ile giris calismiyor?
+
+1. Supabase > Authentication > Providers > Google'da Client ID ve Secret dogru mu?
+2. Google Console'da Redirect URI dogru mu? (`https://PROJE_ID.supabase.co/auth/v1/callback`)
+3. OAuth consent screen'de uygulama durumu "Testing" ise, sadece test kullanicilari giris yapabilir. **Publish** tikla.
+
+### SSL sertifikasi alinmiyor?
+
+1. DNS propagation tamamlandi mi? `ping domain.com` ile kontrol et.
+2. 80 ve 443 portlari acik mi? `ufw status` ile kontrol et.
+3. Caddy loglarini incele:
+```bash
+docker compose -f /opt/contentforge/docker/docker-compose.yml logs caddy
+```
+
+### Container'lari yeniden baslatmak istiyorum?
+
+```bash
+cd /opt/contentforge
+docker compose -f docker/docker-compose.yml restart
+```
+
+### Sifirdan build etmek istiyorum?
+
+```bash
+cd /opt/contentforge
+docker compose -f docker/docker-compose.yml down
+docker compose -f docker/docker-compose.yml up -d --build
+```
+
+---
+
+## YARDIM LINKLERI
+
+| Konu | Dokumantasyon |
+|------|---------------|
+| Supabase | `supabase.com/docs` |
+| OpenAI API | `platform.openai.com/docs` |
+| Lemon Squeezy | `docs.lemonsqueezy.com` |
+| Docker | `docs.docker.com` |
+| Caddy | `caddyserver.com/docs` |
+| Hetzner | `docs.hetzner.com` |

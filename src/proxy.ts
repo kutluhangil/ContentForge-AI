@@ -13,12 +13,17 @@ function isProtectedPath(pathname: string): boolean {
   return PROTECTED_PATHS.some((path) => withoutLocale.startsWith(path));
 }
 
+const API_PUBLIC_PATHS = ['/api/webhooks/', '/api/health'];
+
+function isApiPublic(pathname: string): boolean {
+  return API_PUBLIC_PATHS.some((p) => pathname.startsWith(p));
+}
+
 export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
-  // Skip API routes and static files
+  // Skip static files and Next.js internals
   if (
-    pathname.startsWith('/api/') ||
     pathname.startsWith('/_next/') ||
     pathname.startsWith('/fonts/') ||
     pathname.includes('.')
@@ -26,7 +31,20 @@ export async function proxy(request: NextRequest) {
     return NextResponse.next();
   }
 
-  // Run intl middleware first
+  // API routes — skip i18n, apply auth where needed
+  if (pathname.startsWith('/api/')) {
+    if (isApiPublic(pathname)) {
+      return NextResponse.next();
+    }
+    // Protected API routes get session check
+    const { supabaseResponse, user } = await updateSession(request);
+    if (!user) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+    return supabaseResponse;
+  }
+
+  // Run intl middleware first for all page routes
   const intlResponse = intlMiddleware(request);
 
   // For protected paths, check auth
@@ -40,8 +58,19 @@ export async function proxy(request: NextRequest) {
       return NextResponse.redirect(loginUrl);
     }
 
-    return supabaseResponse;
+    // Merge supabase cookies into intl response
+    supabaseResponse.cookies.getAll().forEach((cookie) => {
+      intlResponse.cookies.set(cookie.name, cookie.value);
+    });
+
+    return intlResponse;
   }
+
+  // Public pages — still refresh session cookies if present
+  const { supabaseResponse } = await updateSession(request);
+  supabaseResponse.cookies.getAll().forEach((cookie) => {
+    intlResponse.cookies.set(cookie.name, cookie.value);
+  });
 
   return intlResponse;
 }
