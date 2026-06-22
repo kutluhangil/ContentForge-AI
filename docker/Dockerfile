@@ -2,7 +2,7 @@
 FROM node:22-alpine AS deps
 WORKDIR /app
 
-RUN apk add --no-cache libc6-compat
+RUN apk add --no-cache libc6-compat ffmpeg
 
 COPY package.json package-lock.json ./
 RUN npm ci --omit=dev --ignore-scripts
@@ -43,7 +43,8 @@ WORKDIR /app
 ENV NODE_ENV=production
 ENV PORT=3000
 
-RUN addgroup --system --gid 1001 nodejs && \
+RUN apk add --no-cache ffmpeg && \
+    addgroup --system --gid 1001 nodejs && \
     adduser  --system --uid 1001 nextjs
 
 # Copy standalone output

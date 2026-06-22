@@ -6,6 +6,7 @@ import { checkUsageLimit } from '@/lib/usage';
 import { parseBlogUrl } from '@/lib/blog';
 import { getYouTubeTranscript } from '@/lib/youtube';
 import type { OutputFormat } from '@/types/repurpose';
+import { rateLimitByUser } from '@/lib/rate-limit';
 
 const outputFormats: OutputFormat[] = [
   'linkedin',
@@ -35,6 +36,15 @@ export async function POST(req: NextRequest) {
 
     if (!user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    // Rate limit check
+    const rateLimitRes = await rateLimitByUser(user.id, 15, 60); // 15 requests per minute
+    if (!rateLimitRes.allowed) {
+      return NextResponse.json(
+        { error: 'Too many requests. Please try again later.' },
+        { status: 429 },
+      );
     }
 
     // Check usage limit

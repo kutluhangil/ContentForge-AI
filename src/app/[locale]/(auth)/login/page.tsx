@@ -6,11 +6,10 @@ import Link from 'next/link';
 import { useTranslations } from 'next-intl';
 import { createClient } from '@/lib/supabase/client';
 
-export default function LoginPage({ params }: { params: Promise<{ locale: string }> }) {
+export default function LoginPage() {
   const t = useTranslations('auth');
   const tc = useTranslations('common');
   const router = useRouter();
-  const [locale, setLocale] = useState('tr');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);

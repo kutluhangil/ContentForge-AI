@@ -70,21 +70,24 @@ export default function RepurposePage() {
   }, [supabase]);
 
   const pollResult = useCallback(async (id: string) => {
-    const res = await fetch(`/api/repurpose/${id}`);
-    if (!res.ok) return;
+    const check = async () => {
+      const res = await fetch(`/api/repurpose/${id}`);
+      if (!res.ok) return;
 
-    const data = await res.json() as ConversionResult;
+      const data = await res.json() as ConversionResult;
 
-    if (data.status === 'completed') {
-      setResult(data);
-      setPageState('done');
-    } else if (data.status === 'failed') {
-      setErrorMsg(data.error_message ?? 'Dönüşüm başarısız.');
-      setPageState('error');
-    } else {
-      // Still processing — poll again in 3s
-      pollRef.current = setTimeout(() => pollResult(id), 3000);
-    }
+      if (data.status === 'completed') {
+        setResult(data);
+        setPageState('done');
+      } else if (data.status === 'failed') {
+        setErrorMsg(data.error_message ?? 'Dönüşüm başarısız.');
+        setPageState('error');
+      } else {
+        // Still processing — poll again in 3s
+        pollRef.current = setTimeout(check, 3000);
+      }
+    };
+    await check();
   }, []);
 
   useEffect(() => {

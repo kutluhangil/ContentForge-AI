@@ -19,7 +19,7 @@ function isApiPublic(pathname: string): boolean {
   return API_PUBLIC_PATHS.some((p) => pathname.startsWith(p));
 }
 
-export async function proxy(request: NextRequest) {
+export default async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
   // Skip static files and Next.js internals

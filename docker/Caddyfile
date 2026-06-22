@@ -14,6 +14,7 @@ contentforge.app {
         X-Frame-Options "SAMEORIGIN"
         Referrer-Policy "strict-origin-when-cross-origin"
         Permissions-Policy "camera=(), microphone=(), geolocation=()"
+        Content-Security-Policy "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://app.lemonsqueezy.com; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; connect-src 'self' wss: https://*.supabase.co https://api.lemonsqueezy.com; frame-src https://checkout.lemonsqueezy.com https://app.lemonsqueezy.com;"
         -Server
     }
 
@@ -39,7 +40,7 @@ contentforge.app {
         path /api/transcribe
     }
     request_body @upload {
-        max_size 30MB
+        max_size 250MB
     }
 
     # Proxy to Next.js

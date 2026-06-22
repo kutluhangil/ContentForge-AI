@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import { History, Search, ChevronDown, ChevronUp, CheckCircle2, XCircle, Loader2, Clock, Play, FileText, Link2, Mic, FileIcon } from 'lucide-react';
+import { History, Search, ChevronDown, ChevronUp, CheckCircle2, XCircle, Loader2, Play, FileText, Link2, Mic, FileIcon } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useTranslations } from 'next-intl';
 import { createClient } from '@/lib/supabase/client';
@@ -59,7 +59,7 @@ export default function HistoryPage() {
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) return;
 
-    let query = supabase
+    const query = supabase
       .from('conversions')
       .select('id, source_type, title, status, created_at, processing_time, error_message, outputs(id, format, content, word_count, is_edited, edited_content)')
       .eq('user_id', user.id)
@@ -71,7 +71,10 @@ export default function HistoryPage() {
     setLoading(false);
   }, [supabase]);
 
-  useEffect(() => { loadHistory(); }, [loadHistory]);
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    loadHistory();
+  }, [loadHistory]);
 
   async function handleSaveEdit(outputId: string, content: string) {
     await supabase.from('outputs').update({ is_edited: true, edited_content: content, content }).eq('id', outputId);

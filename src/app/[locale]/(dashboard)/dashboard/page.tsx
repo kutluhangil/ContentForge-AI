@@ -88,7 +88,7 @@ export default async function DashboardPage() {
       <div className="mt-8 p-5 bg-[var(--bg-secondary)] border border-[var(--border-subtle)] rounded-[var(--radius-xl)] flex items-center justify-between">
         <div>
           <p className="text-sm font-semibold text-[var(--text-primary)]">Yeni Dönüşüm Başlat</p>
-          <p className="text-xs text-[var(--text-tertiary)] mt-0.5">Blog, YouTube, ses veya PDF'i dönüştür.</p>
+          <p className="text-xs text-[var(--text-tertiary)] mt-0.5">Blog, YouTube, ses veya PDF&apos;i dönüştür.</p>
         </div>
         <Link
           href="repurpose"

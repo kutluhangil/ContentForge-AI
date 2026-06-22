@@ -1,8 +1,8 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 import { initLemonSqueezy, cancelSubscription } from '@/lib/lemonsqueezy';
 
-export async function POST(_req: NextRequest) {
+export async function POST() {
   try {
     const supabase = await createClient();
     const {
